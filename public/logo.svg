@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="vulu ftbquests editor">
+  <!-- Vulu family logo (same VL monogram and palette as the other vulu apps).
+       This app's mark: FTB's hexagon quest shape with a completed-quest check. -->
+  <defs>
+    <linearGradient id="zemin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5a3923"/>
+      <stop offset="1" stop-color="#3d2616"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background and frame -->
+  <rect width="512" height="512" fill="#2b1a10"/>
+  <rect x="22" y="22" width="468" height="468" fill="url(#zemin)"/>
+
+  <!-- Hard shadow of the letters and the quest node -->
+  <g transform="translate(14 14)" fill="#1f120a" opacity="0.55">
+    <polygon points="72,110 128,110 192,265 256,110 312,110 192,400"/>
+    <polygon points="308,110 368,110 271.2,344 440,344 440,400 192,400"/>
+    <polygon points="404,160 448,185.4 448,236.2 404,261.6 360,236.2 360,185.4"/>
+  </g>
+
+  <!-- L: stem at the same angle as V's right arm, joined to it -->
+  <polygon points="308,110 368,110 271.2,344 440,344 440,400 192,400" fill="#e9c699"/>
+  <!-- L's foot: one tone darker -->
+  <polygon points="271.2,344 440,344 440,400 248,400" fill="#cfa575"/>
+  <!-- V's shadow on the L -->
+  <polygon points="312,110 326,110 206,400 192,400" fill="#2b1a10" opacity="0.28"/>
+
+  <!-- V: light left arm, dark right arm -->
+  <polygon points="72,110 128,110 192,265 192,400" fill="#b5804f"/>
+  <polygon points="192,265 256,110 312,110 192,400" fill="#8a5c36"/>
+
+  <!-- Quest node: hexagon, light left half / dark right half -->
+  <polygon points="404,160 404,261.6 360,236.2 360,185.4" fill="#e9c699"/>
+  <polygon points="404,160 448,185.4 448,236.2 404,261.6" fill="#cfa575"/>
+  <!-- Completed check -->
+  <polyline points="381,212 398,229 428,195" fill="none" stroke="#3d2616" stroke-width="11" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>

@@ -465,3 +465,21 @@ select option {
 .row.wrap {
   flex-wrap: wrap;
 }
+
+/* Vulu logo */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-mark {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+.welcome-logo {
+  width: 96px;
+  height: 96px;
+  display: block;
+  margin-bottom: 8px;
+}

@@ -219,7 +219,10 @@ export function App() {
   return (
     <div className="app">
       <header className="toolbar">
-        <strong className="logo">Vulu FTBQuests Editor</strong>
+        <strong className="logo">
+          <img src="/logo.svg" alt="" className="logo-mark" />
+          Vulu FTBQuests Editor
+        </strong>
         <button onClick={openFolder} disabled={!canOpen || busy} title={canOpen ? "" : "Bu tarayıcı klasör erişimini desteklemiyor (Chrome/Edge kullanın)"}>
           Mod paketi aç
         </button>
@@ -341,8 +344,9 @@ export function App() {
 function Welcome({ canOpen, onOpen, onDemo }: { canOpen: boolean; onOpen(): void; onDemo(): void }) {
   return (
     <div className="welcome">
+      <img src="/logo.svg" alt="" className="welcome-logo" />
       <h1>Vulu FTBQuests Editor</h1>
-      <p>Görev kitabını oyuna girmeden düzenleyin. Minecraft 1.20 ve üzeri.</p>
+      <p>Görev kitabını oyuna girmeden düzenleyin. Minecraft 1.18 – 1.20.1 (1.21+ deneysel).</p>
       <ol>
         <li>Oyunu (veya sunucuyu) kapatın; açıkken kaydederse değişiklikleriniz ezilebilir.</li>
         <li>

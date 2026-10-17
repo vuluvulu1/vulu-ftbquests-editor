@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="src-tauri/icons/128x128.png" width="96" alt="Vulu FTBQuests Editor icon" />
+<img src="public/logo.svg" width="112" alt="Vulu FTBQuests Editor logo" />
 
 # Vulu FTBQuests Editor
 

@@ -36,9 +36,9 @@ own textures and translations. You can build whole chapters, then just launch th
 
 ## Getting started
 
-Download the installer (`…_x64-setup.exe`) from [Releases](https://github.com/vuluvulu1/vulu-ftbquests-editor/releases/latest)
-and run it. The installer isn't code-signed yet, so Windows SmartScreen may warn you; choose
-**More info → Run anyway**.
+Download `…_x64-portable.exe` from [Releases](https://github.com/vuluvulu1/vulu-ftbquests-editor/releases/latest)
+and run it, no installation needed. The exe isn't code-signed yet, so Windows SmartScreen may warn you;
+choose **More info → Run anyway**.
 
 1. **Close Minecraft** (or the server) first. Otherwise FTB Quests may overwrite your changes when it saves.
 2. Click **Open modpack** and select the instance folder, the one containing `mods` and `config`

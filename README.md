@@ -1,101 +1,115 @@
+<div align="center">
+
+<img src="src-tauri/icons/128x128.png" width="96" alt="Vulu FTBQuests Editor icon" />
+
 # Vulu FTBQuests Editor
 
-Edit your FTB Quests quest book without starting Minecraft.
+**A standalone editor for FTB Quests.**<br />
+Create and edit your modpack's quest book on the desktop, no Minecraft required.
 
-Point it at your modpack's instance folder and you get the quest map the way it looks in game: real item
-icons, the pack's own translations, chapter images, FTB's quest shapes. Add and change quests, hit save,
-and they're there next time you launch the game.
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+![Minecraft 1.18–1.20.1](https://img.shields.io/badge/Minecraft-1.18%E2%80%931.20.1-62B47A)
+![Platform: Windows](https://img.shields.io/badge/platform-Windows-0078D6)
+![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-FFC131)
 
-> Not affiliated with or endorsed by Feed The Beast. FTB Quests is their mod; this is just a tool that
-> reads and writes its files.
+</div>
 
-It's built around Minecraft **1.18–1.20.1** quest books. Packs using the newer 1.21 `lang/` files should
-work too, but I haven't tested one properly yet.
+---
 
-## What it can do
+Writing quests in game means constant restarts, tiny text boxes and no undo. This editor opens your
+modpack's quest files directly and shows them the way the in-game book does: real item icons, the pack's
+own textures and translations. You can build whole chapters, then just launch the game.
 
-**Two ways to edit.** On first launch it asks which one you want, and you can switch any time from the toolbar.
+## Features
 
-- *Simple* (the default) works like FTB Quests' own editor. Right-click empty space and pick a task type to
-  add a quest, click a quest to open its window and edit the title, description, tasks, rewards and
-  dependencies.
-- *Advanced* puts every setting in a side panel, including raw SNBT editing for the stuff there's no form for.
+- **Familiar editing.** Right-click the map to add a quest, click it to edit. The quest window works like
+  the one in FTB Quests, with tasks, rewards, dependencies and description in one place.
+- **Real item icons.** Read from vanilla, your mods, KubeJS and resource packs. 3D block models included.
+- **JEI-style item search.** Search by name or ID, or filter by mod with `@`, e.g. `@mekanism ingot`.
+- **Color without format codes.** Style descriptions with a toolbar; the `&a` / `&l` codes are written for you.
+- **Translation support.** Packs that use lang keys (`{ftbquests.chapter...}`) show and edit the actual
+  text, saved to the pack's KubeJS lang file.
+- **Chapter images.** Move, resize and add decorations, including your own PNGs.
+- **Safe saving.** Untouched files stay byte-identical, only changed files are written, and every save
+  makes a backup first. Full undo/redo.
+- **Advanced mode.** Every quest setting in a side panel, plus raw SNBT editing for anything without a form.
 
-**It looks like the real thing.** Item icons and names are read straight from the vanilla jar, your mod jars,
-KubeJS and any enabled resource packs. Flat items, blocks and Blockbench-style 3D models are drawn at the
-inventory angle. The item picker searches like JEI, so `@mekanism ingot` does what you'd expect.
+## Getting started
 
-**Colored text without the codes.** Descriptions get a small rich text editor: pick a color or make
-something bold and it writes the `&a` / `&l` codes for you. Text effect tags like `<grad>` or `<rainb>`
-are kept intact.
+> Prebuilt releases aren't available yet; see [Building from source](#building-from-source).
 
-**Translated packs just work.** If the pack writes titles as `{ftbquests.chapter.…}` keys (MC Eternal does),
-you see and edit the actual text, and the change goes into the pack's KubeJS lang file.
+1. **Close Minecraft** (or the server) first. Otherwise FTB Quests may overwrite your changes when it saves.
+2. Click **Open modpack** and select the instance folder, the one containing `mods` and `config`
+   (e.g. `CurseForge/Instances/MyPack`).
+3. Make your changes and press **Ctrl+S**.
 
-**Chapter images.** Move and resize the decorations on the quest map, or pick a PNG from your computer. It gets
-copied into the pack's KubeJS textures and placed on the chapter.
+On first launch you'll be asked to pick **Simple** (recommended) or **Advanced** mode. You can switch
+later from the toolbar.
 
-**Careful with your files.** Files you didn't touch are written back byte for byte, only changed files are saved,
-there's undo/redo, and every save makes a backup in `config/ftbquests/editor-backups/` first.
+> [!NOTE]
+> The interface is currently in Turkish. Button names in this README are the English equivalents.
 
-## Using it
+### Controls
 
-The interface is in Turkish for now; the button names below are given in both languages.
-
-1. Close the game (or the server). If it's running, FTB Quests may save over your changes.
-2. Click **Open modpack** (*Mod paketi aç*) and pick the instance folder, the one with `mods` and `config` in it
-   (for example `CurseForge\Instances\YourPack`).
-3. Edit, then save with **Ctrl+S**. If the game is already open and you changed lang files or images, press
-   **F3+T** to reload resources.
-
-A few things worth knowing in simple mode:
-
-| To... | Do this |
+| Action | How |
 |---|---|
-| Add a quest | Right-click empty space on the map and pick a task type |
+| Add a quest | Right-click an empty spot on the map |
 | Edit a quest | Click it |
-| Add a dependency | Use the "+" next to Dependencies (*Gereksinimler*) in the quest window, or Ctrl+click the required quests and right-click the target |
-| Add or reorder chapters | The green **+** above the chapter list, or right-click a chapter |
-| Undo / redo / save | Ctrl+Z / Ctrl+Y / Ctrl+S |
+| Add a dependency | **+** under *Dependencies* in the quest window, or Ctrl+click quests and right-click the target |
+| Add / reorder chapters | Green **+** above the chapter list, or right-click a chapter |
+| Undo / Redo / Save | `Ctrl+Z` / `Ctrl+Y` / `Ctrl+S` |
 
-## Building it yourself
+If the game is running while you edit lang files or images, press `F3+T` in game to reload resources.
 
-You'll need Node.js 20+, Rust (for Tauri 2), and WebView2 on Windows.
+## Compatibility
+
+| Minecraft | Quest format | Status |
+|---|---|---|
+| 1.18 – 1.20.1 | SNBT files in `config/ftbquests/quests` | Supported, tested on real modpacks |
+| 1.21+ | SNBT + `lang/` translation files | Supported, not yet tested on a real modpack |
+
+Tested with **Tech Revolution** (1.19.2, ~4,400 quests) and **MC Eternal 2** (1.20.1, ~1,500 quests).
+
+## Building from source
+
+Requirements: [Node.js](https://nodejs.org) 20+, [Rust](https://rustup.rs), and WebView2 (preinstalled on Windows 10/11).
 
 ```bash
 npm install
-npm run tauri dev     # run the desktop app
-npm test              # run the tests
-npm run tauri build   # make an installer (ends up in src-tauri/target/release/bundle)
+npm run tauri dev     # run the app
+npm run tauri build   # build an installer → src-tauri/target/release/bundle
+npm test              # run the test suite
 ```
 
-`npm run dev` also runs it in Chrome or Edge, using the browser's folder access. That's handy for
-development, but the browser can't reach the vanilla Minecraft jar, so `minecraft:` items show up without icons.
+<details>
+<summary><b>Testing with your own modpacks</b></summary>
 
-### Testing against real packs
+Put a modpack instance (or just its `config/ftbquests/quests` folder) into `samples/`. This folder is
+git-ignored. `npm test` then checks every pack: all `.snbt` files must round-trip unchanged, the book must
+load cleanly, reward tables and translations must resolve, and a single edit must only touch its own file.
 
-Drop a modpack (or just its `config/ftbquests/quests` folder) into `samples/`. It's git-ignored, so nothing
-gets committed. `npm test` will then check each pack: every `.snbt` file round-trips unchanged, the book loads
-cleanly, reward tables and translations resolve, most item icons are found, and a single edit only touches
-the file it should. With `npm run dev` running, `http://localhost:1420/?sample=<folder>` opens a pack
-read-only in the browser.
+With `npm run dev` running, open `http://localhost:1420/?sample=<folder>` to browse a pack read-only.
 
-So far it's been tried on Tech Revolution (1.19.2, about 4,400 quests) and MC Eternal 2 (1.20.1, about
-1,500 quests and 5,000 translated texts).
+</details>
 
-### Where things live
+<details>
+<summary><b>Project layout</b></summary>
 
-- `src/core/snbt/`: the SNBT parser and writer, which keep number types and formatting
-- `src/core/book.ts`: the quest book: loading, saving, undo, translations, images, cleaning up references
-- `src/core/assets/`: reading mod jars and turning item models into icons and names
-- `src/ui/`: the React UI (the map uses React Flow); `src/ui/simple/` holds the simple mode windows and menus
-- `src/platform/`: file access for the desktop app, the browser and tests
-- `src-tauri/`: the Rust side: file access with path checks, backups, reading ranges out of mod jars
+| Path | Contents |
+|---|---|
+| `src/core/snbt/` | SNBT parser and writer that preserve formatting and number types |
+| `src/core/book.ts` | Quest book model: loading, saving, undo, translations, images |
+| `src/core/assets/` | Mod jar reading, item model → icon and name resolution |
+| `src/ui/` | React UI; the quest map uses React Flow |
+| `src/platform/` | File access for the desktop app, browser and tests |
+| `src-tauri/` | Rust backend: file access with path checks, backups, jar reading |
+
+</details>
 
 ## License
 
-[GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later).
+Licensed under the [GNU Affero General Public License v3.0](LICENSE).
 
-No Minecraft, FTB Quests or mod assets are included here. The editor reads them from your own modpack.
-The pixel font in the UI is [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans), under the
-SIL Open Font License 1.1.
+This project is not affiliated with or endorsed by Feed The Beast. No Minecraft, FTB Quests or mod assets
+are included; everything is read from your own modpack. The UI font is
+[Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (SIL Open Font License 1.1).

@@ -36,7 +36,7 @@ own textures and translations. You can build whole chapters, then just launch th
 
 ## Getting started
 
-Download `…_x64-portable.exe` from [Releases](https://github.com/vuluvulu1/vulu-ftbquests-editor/releases/latest)
+Download `vulu-ftbquests-editor_…_x64.exe` from [Releases](https://github.com/vuluvulu1/vulu-ftbquests-editor/releases/latest)
 and run it, no installation needed. The exe isn't code-signed yet, so Windows SmartScreen may warn you;
 choose **More info → Run anyway**.
 

@@ -1,0 +1,65 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "getting_started"
+	group: ""
+	icon: "minecraft:oak_sapling"
+	id: "3F2A9C1B7D4E8A01"
+	order_index: 0
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"Ağaç kesmekle başla!"
+				""
+				"Bir \"balta\" işini kolaylaştırır."
+			]
+			id: "1A2B3C4D5E6F7081"
+			rewards: [
+				{
+					id: "6C1D2E3F4A5B6C7D"
+					type: "xp"
+					xp: 100
+				}
+				{
+					count: 4
+					id: "7D2E3F4A5B6C7D8E"
+					item: "minecraft:apple"
+					type: "item"
+				}
+			]
+			size: 1.5d
+			tasks: [{
+				count: 16L
+				id: "2B3C4D5E6F708192"
+				item: {
+					Count: 1b
+					id: "minecraft:oak_log"
+				}
+				type: "item"
+			}]
+			title: "İlk Adım"
+			x: 0.0d
+			y: -1.5d
+		}
+		{
+			dependencies: ["1A2B3C4D5E6F7081"]
+			id: "4D5E6F708192A3B4"
+			shape: "hexagon"
+			tasks: [{
+				id: "5E6F708192A3B4C5"
+				item: {
+					Count: 1b
+					id: "minecraft:crafting_table"
+					tag: {
+						display: { Name: "{\"text\":\"Tezgah\"}" }
+					}
+				}
+				type: "item"
+			}]
+			x: 2.0d
+			y: -1.5d
+		}
+	]
+	title: "Başlangıç"
+}

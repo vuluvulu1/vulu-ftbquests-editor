@@ -1,0 +1,394 @@
+/* Simple mode: in-game style menus and windows (FTB "context_menu" / "quest_view" look). */
+
+.workspace.simple {
+  grid-template-columns: 240px 1fr;
+}
+
+/* Right-click menu */
+.ftb-menu {
+  position: fixed;
+  z-index: 100;
+  min-width: 190px;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  padding: 3px;
+  background: rgba(16, 12, 22, 0.97);
+  border: 1px solid var(--ftb-border);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 8px 24px rgba(0, 0, 0, 0.6);
+  font-family: var(--mc-font);
+}
+.ftb-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 8px 3px 4px;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+}
+.ftb-menu-item:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ftb-hover-text);
+}
+.ftb-menu-item.danger {
+  color: #ff7070;
+}
+.ftb-menu-icon {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.ftb-menu-sep {
+  height: 1px;
+  margin: 3px 2px;
+  background: var(--ftb-border);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.ftb-menu-header {
+  padding: 4px 8px 2px;
+  font-size: 12px;
+  color: #aaaaaa;
+  white-space: normal;
+  max-width: 260px;
+}
+
+/* Windows */
+.ftb-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+.ftb-modal {
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(20, 14, 28, 0.97);
+  border: 1px solid var(--ftb-border);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 16px 48px rgba(0, 0, 0, 0.7);
+}
+.ftb-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 6px 14px;
+  color: #aaaaaa;
+  font-family: var(--mc-font);
+  font-size: 15px;
+  border-bottom: 1px solid var(--ftb-border);
+}
+.ftb-modal-title span {
+  flex: 1;
+}
+.ftb-modal-body {
+  padding: 12px 14px 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.settings-modal .ftb-modal-body {
+  padding: 0;
+}
+.settings-modal .panel {
+  padding-top: 8px;
+}
+.row.end {
+  justify-content: flex-end;
+}
+
+/* Quest window */
+.quest-view .ftb-modal-body {
+  gap: 12px;
+}
+.quest-view-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quest-view-title {
+  flex: 1;
+  min-width: 0;
+}
+.quest-view-title .rich-input {
+  font-family: var(--mc-font);
+  font-size: 18px;
+}
+.quest-view-subtitle .rich-input {
+  color: #aaaaaa;
+}
+.quest-view-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.quest-view-columns h3 {
+  margin: 0 0 6px;
+  font-family: var(--mc-font);
+  font-size: 15px;
+  font-weight: 400;
+}
+.quest-view-columns h3.tasks-title {
+  color: #5555ff;
+}
+.quest-view-columns h3.rewards-title {
+  color: #ffaa00;
+}
+.quest-view-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.quest-view-slot {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--ftb-border);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.quest-view-slot:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.quest-view-slot.add {
+  color: #56ff56;
+  font-size: 22px;
+  font-family: var(--mc-font);
+}
+.slot-count {
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  font-family: var(--mc-font);
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 1px 1px 0 #3f3f3f;
+}
+.quest-view-slot .slot-tooltip {
+  left: 50%;
+  top: auto;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+}
+.quest-view-slot:hover .slot-tooltip {
+  display: block;
+}
+.quest-view-description .rich-text.multiline .rich-input {
+  min-height: 140px;
+}
+
+/* Item picker */
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 4px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.item-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  font-size: 11px;
+  border: 1px solid var(--ftb-border);
+  background: rgba(0, 0, 0, 0.3);
+}
+.item-cell-name {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+.item-field-pick {
+  padding: 2px;
+  border: 1px solid var(--ftb-border);
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: none;
+}
+
+/* Mode chooser */
+.mode-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.mode-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px;
+  text-align: left;
+  white-space: normal;
+  background: rgba(0, 0, 0, 0.3);
+}
+.mode-option.chosen {
+  border-color: #ffffa0;
+  box-shadow: inset 0 0 0 1px #ffffa0;
+}
+.mode-name {
+  font-size: 17px;
+  color: #fff;
+}
+.mode-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  color: #56ff56;
+  border: 1px solid #2d6b2d;
+}
+.mode-desc {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  color: #c8c8c8;
+  line-height: 1.4;
+}
+
+/* Chapter panel header with FTB's green "+" */
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 6px;
+  color: #aaaaaa;
+  font-size: 14px;
+}
+.add-green {
+  color: #56ff56;
+  padding: 0 7px;
+  font-size: 16px;
+  line-height: 20px;
+}
+.sidebar-hint {
+  padding: 8px 6px;
+}
+
+/* Quest window: icon button, dependencies, quick switches */
+.quest-view-icon {
+  padding: 2px;
+  border: 1px solid transparent;
+  box-shadow: none;
+  background: transparent;
+}
+.quest-view-icon:hover {
+  border-color: var(--ftb-border);
+  background: rgba(255, 255, 255, 0.06);
+}
+.quest-view-deps,
+.quest-view-flags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.quest-view-label {
+  font-family: var(--mc-font);
+  font-size: 13px;
+  color: #aaaaaa;
+  margin-right: 4px;
+}
+.dep-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 4px 0 4px;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--ftb-border);
+}
+.dep-chip.broken {
+  color: #ff8080;
+}
+.dep-chip-name {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dep-chip-remove {
+  border: none;
+  box-shadow: none;
+  padding: 0 2px;
+  color: #999;
+  visibility: hidden;
+}
+.dep-chip:hover .dep-chip-remove {
+  visibility: visible;
+}
+.dep-chip-remove:hover:not(:disabled) {
+  background: transparent;
+  color: #ff7070;
+}
+.dep-chip.add {
+  justify-content: center;
+  width: 24px;
+  padding: 0;
+  color: #56ff56;
+  font-size: 15px;
+}
+.flag-chip {
+  font-size: 12px;
+  padding: 2px 8px;
+  color: #aaaaaa;
+}
+.flag-chip.on {
+  color: #56ff56;
+  border-color: #2d6b2d;
+}
+.quest-view-flags .spacer {
+  flex: 1;
+}
+
+/* Quest picker */
+.quest-pick-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.quest-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: none;
+  box-shadow: none;
+  text-align: left;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+}
+.quest-pick:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+.quest-pick-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quest-pick-chapter {
+  color: #888;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Simple mode hides where translated texts are stored (still shown in advanced mode). */
+.quest-view .field-caption {
+  display: none;
+}

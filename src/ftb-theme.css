@@ -1,0 +1,467 @@
+/* ======================================================================
+   FTB Quests look, from ftbquests' own ftb_quests_theme.txt:
+   - background: ftblibrary:textures/gui/background_squares.png, 64px tiles, color #DCFFFFFF
+     (packs restyle it with resource packs; the texture comes from the opened pack)
+   - widget_border #1B1D1E, widget_background #44000000, hollow-rectangle buttons
+   - text #FFFFFF, hover text #FFFFA0, disabled #999999
+   - selected chapter highlight #60999999 -> #28999999
+   - quest view: rounded border, title #AAAAAA, tasks #5555FF, rewards #FFAA00
+   - dependency lines #B4CCA3A3, requires #00C8C8, required for #C8C800
+   ====================================================================== */
+:root {
+  --ftb-border: #1b1d1e;
+  --ftb-widget: rgba(0, 0, 0, 0.267);
+  --ftb-hover-text: #ffffa0;
+  --ftb-disabled: #999999;
+  --ftb-highlight: linear-gradient(90deg, rgba(153, 153, 153, 0.376), rgba(153, 153, 153, 0.157));
+  --bg: #15101c;
+  --panel: rgba(0, 0, 0, 0.267);
+  --panel-2: rgba(0, 0, 0, 0.35);
+  --border: #1b1d1e;
+  --text: #ffffff;
+  --dim: #aaaaaa;
+  --accent: #6b8fd6;
+  --accent-2: #ffffa0;
+  --mc-font: "Pixelify Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+/* The FTB background behind everything (the pack's texture, set by ThemeBackdrop). */
+body,
+.app {
+  background-color: #120d18;
+}
+.app {
+  position: relative;
+  font-family: var(--mc-font);
+}
+.app::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--ftb-bg, none);
+  background-size: 64px 64px;
+  image-rendering: pixelated;
+  opacity: 0.86;
+  pointer-events: none;
+}
+.app > * {
+  position: relative;
+}
+.app > .loading-overlay,
+.app > .toast {
+  position: fixed;
+}
+
+/* Form fields keep a regular font for comfortable editing. */
+input,
+select,
+textarea,
+.rich-input {
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* Buttons: FTB's hollow rectangles */
+button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--ftb-border);
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  font-family: var(--mc-font);
+}
+button:hover:not(:disabled) {
+  filter: none;
+  background: var(--ftb-widget);
+  color: var(--ftb-hover-text);
+}
+button:disabled {
+  color: var(--ftb-disabled);
+  opacity: 1;
+}
+button.secondary,
+button.primary,
+button.danger,
+button.warning {
+  background: transparent;
+}
+button.primary {
+  color: #56ff56;
+}
+button.danger {
+  color: #ff7070;
+  border-color: var(--ftb-border);
+}
+button.warning {
+  color: #ffaa00;
+}
+.icon-button,
+.link-button,
+.chapter-button {
+  border: none;
+  box-shadow: none;
+}
+.link-button {
+  color: #aaccff;
+}
+.link-button:hover:not(:disabled) {
+  background: transparent;
+}
+
+/* Inputs */
+input,
+select,
+textarea,
+.rich-input {
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--ftb-border);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+input:focus,
+select:focus,
+textarea:focus,
+.rich-input:focus {
+  border-color: #6b6b6b;
+}
+select option {
+  background: #1a1420;
+}
+.rich-toolbar {
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.45);
+  border-color: var(--ftb-border);
+}
+.rich-toolbar button {
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+.rich-toolbar button:hover {
+  border-color: var(--ftb-border);
+}
+.rich-toolbar .swatch {
+  border: 1px solid rgba(0, 0, 0, 0.6);
+}
+
+/* Top bar and side panels sit on the background like FTB's widgets */
+.toolbar {
+  background: var(--ftb-widget);
+  border-bottom: 1px solid var(--ftb-border);
+}
+.badge {
+  border-radius: 0;
+  background: var(--ftb-widget);
+  border: 1px solid var(--ftb-border);
+}
+.sidebar,
+.inspector {
+  background: var(--ftb-widget);
+}
+.sidebar {
+  border-right: 1px solid var(--ftb-border);
+  padding: 4px 3px;
+}
+
+/* Chapter list as in the in-game chapter panel */
+.sidebar h4 {
+  margin: 10px 6px 2px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #aaaaaa;
+}
+.sidebar li {
+  border-radius: 0;
+}
+.sidebar li:hover {
+  background: transparent;
+}
+.sidebar li:hover .chapter-name {
+  color: var(--ftb-hover-text);
+}
+.sidebar li.active {
+  outline: none;
+  background: var(--ftb-highlight);
+}
+.chapter-button {
+  font-size: 14px;
+  padding: 3px 6px;
+  background: transparent;
+}
+.chapter-button:hover:not(:disabled) {
+  background: transparent;
+}
+.chapter-icon {
+  background: transparent;
+  width: 20px;
+  height: 20px;
+}
+.count {
+  color: #8a8a8a;
+}
+
+/* Quest details: FTB's quest view colours */
+.inspector {
+  border-left: 1px solid var(--ftb-border);
+}
+.panel h2 {
+  color: #aaaaaa;
+  font-weight: 400;
+}
+.panel h3 {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: #aaaaaa;
+  border-top: 1px solid var(--ftb-border);
+}
+.panel h3.tasks-title {
+  color: #5555ff;
+}
+.panel h3.rewards-title {
+  color: #ffaa00;
+}
+.field-label {
+  color: #aaaaaa;
+}
+.card {
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--ftb-border);
+  box-shadow: none;
+}
+.add-menu {
+  border-style: solid;
+  color: #ffffa0;
+}
+
+/* Quest map */
+.map {
+  background: transparent;
+}
+.map .react-flow {
+  --xy-background-color: transparent;
+  background: transparent;
+}
+
+/* Quest buttons: FTB shape textures; the outline carries the quest colour
+   (not started #96FFFFFF), full white on hover, #FFFFA0 when selected. */
+.ftb-shape {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.ftb-layer {
+  position: absolute;
+  inset: 0;
+  background-size: 100% 100%;
+  background-blend-mode: multiply;
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  pointer-events: none;
+}
+.ftb-layer.background {
+  background-color: #ffffff;
+}
+.ftb-layer.outline {
+  background-color: #ffffff;
+  opacity: 0.59;
+}
+.quest-node:hover .ftb-layer.outline {
+  opacity: 1;
+}
+.ftb-shape.selected .ftb-layer.outline {
+  background-color: #ffffa0;
+  opacity: 1;
+}
+.ftb-shape.link .ftb-layer.background {
+  background-color: #a0c0ff;
+}
+.ftb-shape .quest-icon {
+  position: relative;
+  z-index: 1;
+}
+.quest-title {
+  font-size: 12px;
+  color: #fff;
+}
+
+/* Tooltip: Minecraft's (FTB uses vanilla tooltips) */
+.mc-tooltip {
+  display: none;
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: max-content;
+  max-width: 340px;
+  padding: 4px 7px;
+  background: rgba(16, 0, 16, 0.94);
+  border: 2px solid;
+  border-image: linear-gradient(rgba(80, 0, 255, 0.55), rgba(40, 0, 127, 0.55)) 1;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+.mc-tooltip-sub {
+  color: #aaaaaa;
+  font-size: 13px;
+}
+.mc-tooltip-warn {
+  color: #ffaa00;
+  font-size: 12px;
+}
+.quest-node:hover .mc-tooltip {
+  display: block;
+}
+/* Raise only the hovered quest (for its tooltip); images must stay behind the quests. */
+.react-flow__node-quest:hover {
+  z-index: 3000 !important;
+}
+
+/* Dependency lines: FTB colours; only the selected quest's lines move */
+.react-flow__edge-path {
+  stroke: rgba(204, 163, 163, 0.7);
+  stroke-width: 4;
+}
+.react-flow__edge.requires .react-flow__edge-path,
+.react-flow__edge.required-for .react-flow__edge-path {
+  stroke-dasharray: 10 6;
+  animation: ftb-line 0.8s linear infinite;
+}
+.react-flow__edge.requires .react-flow__edge-path {
+  stroke: #00c8c8;
+}
+.react-flow__edge.required-for .react-flow__edge-path {
+  stroke: #c8c800;
+}
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #ffffa0;
+}
+@keyframes ftb-line {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .react-flow__edge-path {
+    animation: none !important;
+  }
+}
+
+.react-flow__controls {
+  box-shadow: none;
+}
+.react-flow__controls button {
+  background: var(--ftb-widget);
+  border: 1px solid var(--ftb-border);
+  box-shadow: none;
+  fill: #ddd;
+}
+.react-flow__controls button:hover {
+  fill: var(--ftb-hover-text);
+}
+.react-flow__minimap {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--ftb-border);
+}
+.map-toggle {
+  font-size: 13px;
+  padding: 3px 10px;
+  background: var(--ftb-widget);
+}
+.map-toggle.on {
+  color: var(--ftb-hover-text);
+}
+
+/* Loading screen and toasts: FTB context-menu style boxes */
+.loading-overlay {
+  background: rgba(0, 0, 0, 0.55);
+}
+.loading-card,
+.toast {
+  border-radius: 6px;
+  background: rgba(20, 14, 28, 0.94);
+  border: 1px solid var(--ftb-border);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+.welcome code {
+  background: var(--ftb-widget);
+  border: 1px solid var(--ftb-border);
+  border-radius: 0;
+}
+
+/* Chapter images on the map */
+.map-image {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.map-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.map-image.selected {
+  outline: 1px dashed #ffffa0;
+}
+.map-image.dev {
+  outline: 1px dashed rgba(255, 170, 0, 0.6);
+}
+.map-image:hover .mc-tooltip {
+  display: block;
+}
+.map-image-missing {
+  font-size: 11px;
+  color: #ff8080;
+  text-align: center;
+  padding: 2px;
+  border: 1px dashed rgba(255, 128, 128, 0.5);
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.map-image-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 3px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--ftb-border);
+  color: #00c8c8;
+}
+.map-toggles {
+  display: flex;
+  gap: 6px;
+}
+.image-preview {
+  display: grid;
+  place-items: center;
+  min-height: 96px;
+  max-height: 200px;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--ftb-border);
+}
+.image-preview img {
+  max-width: 100%;
+  max-height: 188px;
+  image-rendering: pixelated;
+}
+
+.row.wrap {
+  flex-wrap: wrap;
+}

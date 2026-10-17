@@ -1,0 +1,61 @@
+export type StepState = "pending" | "active" | "done" | "skipped";
+
+export interface LoadStep {
+  id: "book" | "index" | "texts" | "icons";
+  label: string;
+  state: StepState;
+  /** "12/650" style progress or a short result. */
+  detail?: string;
+}
+
+export function initialSteps(withAssets: boolean): LoadStep[] {
+  const skipped = withAssets ? "pending" : "skipped";
+  return [
+    { id: "book", label: "Görev kitabı okunuyor", state: "active" },
+    { id: "index", label: "Mod dosyaları taranıyor", state: skipped },
+    { id: "texts", label: "Çeviriler yükleniyor", state: skipped },
+    { id: "icons", label: "İkonlar hazırlanıyor", state: skipped },
+  ];
+}
+
+const MARK: Record<StepState, string> = { pending: "•", active: "", done: "✓", skipped: "–" };
+
+function fraction(detail: string | undefined): number | undefined {
+  const m = /^(\d+)\/(\d+)$/.exec(detail ?? "");
+  return m && Number(m[2]) > 0 ? Number(m[1]) / Number(m[2]) : undefined;
+}
+
+export function LoadingOverlay({ steps, source, onSkip }: { steps: LoadStep[]; source: string; onSkip?: () => void }) {
+  return (
+    <div className="loading-overlay">
+      <div className="loading-card">
+        <h2>Mod paketi yükleniyor</h2>
+        <div className="mono dim loading-source" title={source}>
+          {source}
+        </div>
+        <ul className="loading-steps">
+          {steps.map((s) => {
+            const f = s.state === "active" ? fraction(s.detail) : undefined;
+            return (
+              <li key={s.id} className={s.state}>
+                <span className="step-mark">{s.state === "active" ? <span className="spinner" /> : MARK[s.state]}</span>
+                <span className="step-label">{s.label}</span>
+                <span className="step-detail">{s.detail}</span>
+                {f !== undefined && (
+                  <span className="step-bar">
+                    <span style={{ width: `${Math.round(f * 100)}%` }} />
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        {onSkip && (
+          <button className="secondary" onClick={onSkip}>
+            Beklemeden devam et
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}

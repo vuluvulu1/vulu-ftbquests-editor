@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { t } from "../../i18n";
 
 /** Open windows, innermost last: Escape closes only the top one. */
 const stack: symbol[] = [];
@@ -35,7 +36,7 @@ export function Modal({ title, onClose, children, width = 560, className }: { ti
         {title !== undefined && (
           <div className="ftb-modal-title">
             <span>{title}</span>
-            <button className="icon-button" title="Kapat (Esc)" onClick={onClose}>
+            <button className="icon-button" title={t("Close (Esc)")} onClick={onClose}>
               ✕
             </button>
           </div>

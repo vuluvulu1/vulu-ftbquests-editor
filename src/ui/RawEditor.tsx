@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { QuestBook } from "../core/book";
 import { parseSnbt, writeSnbt, type SnbtCompound } from "../core/snbt";
+import { t } from "../i18n";
 
 /** Edits any compound as SNBT text. Covers every field the forms do not know about. */
 export function RawEditor({ book, target, version }: { book: QuestBook; target: SnbtCompound; version: number }) {
@@ -16,7 +17,7 @@ export function RawEditor({ book, target, version }: { book: QuestBook; target: 
   if (!open) {
     return (
       <button className="link-button" onClick={() => setOpen(true)}>
-        Ham SNBT düzenle…
+        {t("Edit raw SNBT…")}
       </button>
     );
   }
@@ -24,7 +25,7 @@ export function RawEditor({ book, target, version }: { book: QuestBook; target: 
   const apply = () => {
     try {
       const parsed = parseSnbt(text);
-      if (parsed.kind !== "compound") throw new Error("Kök değer { } olmalı");
+      if (parsed.kind !== "compound") throw new Error(t("The root value must be { }"));
       book.replaceContents(target, parsed as SnbtCompound);
       setError(null);
     } catch (e) {
@@ -37,9 +38,9 @@ export function RawEditor({ book, target, version }: { book: QuestBook; target: 
       <textarea className="mono" rows={Math.min(24, text.split("\n").length + 1)} value={text} onChange={(e) => setText(e.target.value)} spellCheck={false} />
       {error && <div className="error">{error}</div>}
       <div className="row">
-        <button onClick={apply}>Uygula</button>
+        <button onClick={apply}>{t("Apply")}</button>
         <button className="secondary" onClick={() => setOpen(false)}>
-          Kapat
+          {t("Close")}
         </button>
       </div>
     </div>

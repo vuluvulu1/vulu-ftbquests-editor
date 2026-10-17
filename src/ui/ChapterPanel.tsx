@@ -8,6 +8,7 @@ import { PngPicker } from "./PngPicker";
 import { stripFormatting, useTranslate } from "./McText";
 import { TranslatableTextField } from "./TranslatableFields";
 import { RawEditor } from "./RawEditor";
+import { t } from "../i18n";
 
 interface Props {
   book: QuestBook;
@@ -24,18 +25,18 @@ export function ChapterPanel({ book, version, chapter, onDeleted, onImageAdded, 
   const shapes = useShapeOptions(QUEST_SHAPES);
   return (
     <div className="panel">
-      <h2>Bölüm</h2>
+      <h2>{t("Chapter")}</h2>
       <div className="mono dim">{chapter.path}</div>
 
-      <Field label="Başlık">
+      <Field label={t("Title")}>
         <TranslatableTextField book={book} kind="chapter" obj={root} field="title" />
       </Field>
-      <Field label="Simge">
-        <ItemField value={book.itemId(root, "icon")} iconRef={book.iconRef(root, "icon")} placeholder="ör. minecraft:oak_sapling" onCommit={(v) => book.setItemId(root, v, "icon")} />
+      <Field label={t("Icon")}>
+        <ItemField value={book.itemId(root, "icon")} iconRef={book.iconRef(root, "icon")} placeholder={t("e.g. minecraft:oak_sapling")} onCommit={(v) => book.setItemId(root, v, "icon")} />
       </Field>
-      <Field label="Grup">
-        <select value={getString(root, "group") ?? ""} onChange={(e) => book.edit("grup", () => setString(root, "group", e.target.value), root)}>
-          <option value="">(grupsuz)</option>
+      <Field label={t("Group")}>
+        <select value={getString(root, "group") ?? ""} onChange={(e) => book.edit("group", () => setString(root, "group", e.target.value), root)}>
+          <option value="">{t("(no group)")}</option>
           {book.chapterGroups.map((g) => (
             <option key={getString(g, "id")} value={getString(g, "id")}>
               {stripFormatting(translate(book.getText("chapter_group", g, "title"))) || getString(g, "id")}
@@ -43,24 +44,24 @@ export function ChapterPanel({ book, version, chapter, onDeleted, onImageAdded, 
           ))}
         </select>
       </Field>
-      <Field label="Varsayılan görev şekli">
-        <select value={getString(root, "default_quest_shape") ?? ""} onChange={(e) => book.edit("varsayılan şekil", () => setString(root, "default_quest_shape", e.target.value), root)}>
+      <Field label={t("Default quest shape")}>
+        <select value={getString(root, "default_quest_shape") ?? ""} onChange={(e) => book.edit("default shape", () => setString(root, "default_quest_shape", e.target.value), root)}>
           {shapes.map((s) => (
             <option key={s} value={s}>
-              {s || "(kitap varsayılanı)"}
+              {s || t("(book default)")}
             </option>
           ))}
         </select>
       </Field>
 
-      <h3>Resimler</h3>
+      <h3>{t("Images")}</h3>
       <p className="hint">
-        Bu bölümde {book.images(chapter).length} resim var. Haritada tıklayıp seçebilir, sürükleyip taşıyabilirsiniz.
+        {t("This chapter has {count} images. Click one on the map to select it, drag it to move it.", { count: book.images(chapter).length })}
       </p>
       <div className="row wrap">
         <PngPicker
           book={book}
-          label="+ Bilgisayardan resim ekle"
+          label={t("+ Add image from computer")}
           onError={onError}
           onImported={(img) => {
             const size = initialImageSize(img.width, img.height);
@@ -75,32 +76,42 @@ export function ChapterPanel({ book, version, chapter, onDeleted, onImageAdded, 
             onImageAdded(book.images(chapter).length - 1);
           }}
         >
-          + Paketteki bir dokuyla ekle
+          {t("+ Add with a texture from the pack")}
         </button>
       </div>
-      <p className="hint">Eklenen resim (0, 0) konumuna yerleşir; haritada sürükleyerek taşıyın.</p>
+      <p className="hint">{t("New images are placed at (0, 0); drag them on the map to move them.")}</p>
 
-      <h3>Kullanım</h3>
+      <h3>{t("Usage")}</h3>
       <ul className="help">
-        <li>Boş alana <b>çift tıkla</b>: yeni görev</li>
-        <li>Görevin sağındaki <b>noktadan sürükle</b>: bağımlılık</li>
-        <li>Seç + <b>Delete</b>: görev veya bağlantıyı sil</li>
-        <li><b>Shift + sürükle</b>: çoklu seçim</li>
-        <li><b>Ctrl+Z / Ctrl+Y</b>: geri al / yinele, <b>Ctrl+S</b>: kaydet</li>
+        <li>
+          <b>{t("Double-click empty space")}</b>: {t("new quest")}
+        </li>
+        <li>
+          <b>{t("Drag from the dot on a quest's right")}</b>: {t("dependency")}
+        </li>
+        <li>
+          <b>{t("Select + Delete")}</b>: {t("delete a quest or line")}
+        </li>
+        <li>
+          <b>{t("Shift + drag")}</b>: {t("select several")}
+        </li>
+        <li>
+          <b>Ctrl+Z / Ctrl+Y</b>: {t("undo / redo")}, <b>Ctrl+S</b>: {t("save")}
+        </li>
       </ul>
 
-      <h3>Gelişmiş</h3>
+      <h3>{t("Advanced")}</h3>
       <RawEditor book={book} target={root} version={version} />
       <button
         className="danger"
         onClick={() => {
-          if (window.confirm(`"${book.getText("chapter", root, "title") || chapter.path}" bölümü ve tüm görevleri silinsin mi? (Geri alınabilir)`)) {
+          if (window.confirm(t("Delete the chapter \"{name}\" and all its quests? (You can undo this)", { name: book.getText("chapter", root, "title") || chapter.path }))) {
             book.deleteChapter(chapter);
             onDeleted();
           }
         }}
       >
-        Bölümü sil
+        {t("Delete chapter")}
       </button>
     </div>
   );

@@ -5,6 +5,7 @@ import { Field, ItemField, NumberField, TextField } from "./inputs";
 import { stripFormatting, useTranslate } from "./McText";
 import { TranslatableTextField } from "./TranslatableFields";
 import { RawEditor } from "./RawEditor";
+import { t } from "../i18n";
 
 interface Props {
   book: QuestBook;
@@ -24,26 +25,26 @@ export function SubObjectEditor({ book, version, kind, obj, spec, onRemove, simp
   return (
     <div className="card">
       <div className="card-header">
-        <span className="badge">{spec?.label ?? type}</span>
+        <span className="badge">{spec ? t(spec.label) : type}</span>
         <span className="mono dim">{getString(obj, "id")}</span>
-        <button className="icon-button" title="Sil" onClick={onRemove}>
+        <button className="icon-button" title={t("Delete")} onClick={onRemove}>
           ✕
         </button>
       </div>
-      <Field label="Başlık (isteğe bağlı)">
+      <Field label={t("Title (optional)")}>
         <TranslatableTextField book={book} kind={kind} obj={obj} field="title" />
       </Field>
       {spec?.fields.map((f) => {
         switch (f.kind) {
           case "item":
             return (
-              <Field key={f.key} label={f.label}>
+              <Field key={f.key} label={t(f.label)}>
                 <ItemField value={book.itemId(obj, f.key)} onCommit={(v) => book.setItemId(obj, v, f.key)} />
               </Field>
             );
           case "string":
             return (
-              <Field key={f.key} label={f.label}>
+              <Field key={f.key} label={t(f.label)}>
                 <TextField
                   mono
                   value={getString(obj, f.key) ?? ""}
@@ -54,7 +55,7 @@ export function SubObjectEditor({ book, version, kind, obj, spec, onRemove, simp
           case "int":
           case "long":
             return (
-              <Field key={f.key} label={f.label}>
+              <Field key={f.key} label={t(f.label)}>
                 <NumberField
                   integer
                   value={getNumber(obj, f.key) ?? 1}
@@ -66,9 +67,9 @@ export function SubObjectEditor({ book, version, kind, obj, spec, onRemove, simp
             const current = getLong(obj, f.key)?.toString() ?? "";
             const tables = book.rewardTables;
             return (
-              <Field key={f.key} label={f.label}>
+              <Field key={f.key} label={t(f.label)}>
                 <select value={current} onChange={(e) => book.edit(f.label, () => setLong(obj, f.key, BigInt(e.target.value)), obj)}>
-                  {!tables.some((t) => t.longId.toString() === current) && <option value={current}>(bulunamadı: {current || "yok"})</option>}
+                  {!tables.some((t) => t.longId.toString() === current) && <option value={current}>({t("not found")}: {current || t("none")})</option>}
                   {tables.map((t) => (
                     <option key={t.path} value={t.longId.toString()}>
                       {stripFormatting(translate(book.getText("reward_table", t.root, "title"))) || t.path.replace(/^reward_tables\/|\.snbt$/g, "")}
@@ -86,12 +87,12 @@ export function SubObjectEditor({ book, version, kind, obj, spec, onRemove, simp
                   checked={getBool(obj, f.key) ?? false}
                   onChange={(e) => book.edit(f.label, () => setFlag(obj, f.key, e.target.checked), obj)}
                 />
-                {f.label}
+                {t(f.label)}
               </label>
             );
         }
       })}
-      {!spec && <p className="hint">Bu tür için form yok; alanları ham SNBT ile düzenleyebilirsiniz.</p>}
+      {!spec && <p className="hint">{t("There's no form for this type; edit its fields as raw SNBT.")}</p>}
       {/* In simple mode the raw editor is only offered for types without a form. */}
       {(!simple || !spec) && <RawEditor book={book} target={obj} version={version} />}
     </div>

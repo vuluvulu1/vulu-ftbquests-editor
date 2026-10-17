@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 export type StepState = "pending" | "active" | "done" | "skipped";
 
 export interface LoadStep {
@@ -11,10 +12,10 @@ export interface LoadStep {
 export function initialSteps(withAssets: boolean): LoadStep[] {
   const skipped = withAssets ? "pending" : "skipped";
   return [
-    { id: "book", label: "Görev kitabı okunuyor", state: "active" },
-    { id: "index", label: "Mod dosyaları taranıyor", state: skipped },
-    { id: "texts", label: "Çeviriler yükleniyor", state: skipped },
-    { id: "icons", label: "İkonlar hazırlanıyor", state: skipped },
+    { id: "book", label: "Reading the quest book", state: "active" },
+    { id: "index", label: "Scanning mod files", state: skipped },
+    { id: "texts", label: "Loading translations", state: skipped },
+    { id: "icons", label: "Preparing icons", state: skipped },
   ];
 }
 
@@ -29,7 +30,7 @@ export function LoadingOverlay({ steps, source, onSkip }: { steps: LoadStep[]; s
   return (
     <div className="loading-overlay">
       <div className="loading-card">
-        <h2>Mod paketi yükleniyor</h2>
+        <h2>{t("Loading modpack")}</h2>
         <div className="mono dim loading-source" title={source}>
           {source}
         </div>
@@ -39,7 +40,7 @@ export function LoadingOverlay({ steps, source, onSkip }: { steps: LoadStep[]; s
             return (
               <li key={s.id} className={s.state}>
                 <span className="step-mark">{s.state === "active" ? <span className="spinner" /> : MARK[s.state]}</span>
-                <span className="step-label">{s.label}</span>
+                <span className="step-label">{t(s.label)}</span>
                 <span className="step-detail">{s.detail}</span>
                 {f !== undefined && (
                   <span className="step-bar">
@@ -52,7 +53,7 @@ export function LoadingOverlay({ steps, source, onSkip }: { steps: LoadStep[]; s
         </ul>
         {onSkip && (
           <button className="secondary" onClick={onSkip}>
-            Beklemeden devam et
+            {t("Continue without waiting")}
           </button>
         )}
       </div>

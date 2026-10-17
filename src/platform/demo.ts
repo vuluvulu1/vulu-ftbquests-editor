@@ -1,11 +1,12 @@
 import { archivesFromSpecs, type AssetHost, type InstanceAssetInfo } from "../core/assets/sources";
 import { MemoryFileSystem, type QuestFileSystem } from "../core/fs";
+import { t } from "../i18n";
 
 /** Dev server only: loads samples/<name> through the Vite middleware. Saves stay in memory. */
 export async function sampleFileSystem(name: string): Promise<QuestFileSystem> {
   const base = `/__samples?name=${encodeURIComponent(name)}`;
   const res = await fetch(base);
-  if (!res.ok) throw new Error(`samples/${name} içinde quests klasörü bulunamadı`);
+  if (!res.ok) throw new Error(`No quests folder found in samples/${name}`);
   const paths: string[] = await res.json();
   const files: Record<string, string> = {};
   await Promise.all(
@@ -13,7 +14,7 @@ export async function sampleFileSystem(name: string): Promise<QuestFileSystem> {
       files[p] = await (await fetch(`${base}&file=${encodeURIComponent(p)}`)).text();
     }),
   );
-  const memory = new MemoryFileSystem(files, `samples/${name} (salt okunur önizleme)`);
+  const memory = new MemoryFileSystem(files, `samples/${name} (${t("read-only preview")})`);
   const fs: QuestFileSystem = memory;
   // Lang files are read from the sample; edits stay in memory like everything else here.
   fs.readInstanceFile = async (path) => {
@@ -60,20 +61,20 @@ export function demoFileSystem() {
       "data.snbt": `{
 	default_quest_shape: ""
 	id: "0000000000000001"
-	title: "Demo Görev Kitabı"
+	title: "Demo Quest Book"
 	version: 13
 }
 `,
       "chapter_groups.snbt": `{
 	chapter_groups: [{
 		id: "6A6A6A6A6A6A6A6A"
-		title: "Teknoloji"
+		title: "Technology"
 	}]
 }
 `,
-      "chapters/baslangic.snbt": `{
+      "chapters/getting_started.snbt": `{
 	default_quest_shape: "circle"
-	filename: "baslangic"
+	filename: "getting_started"
 	group: ""
 	icon: "minecraft:oak_sapling"
 	id: "1000000000000001"
@@ -81,33 +82,33 @@ export function demoFileSystem() {
 	quest_links: [ ]
 	quests: [
 ${[
-  quest("1100000000000001", 0, 0, "Ağaç Kes", "minecraft:oak_log", [], `			description: [\n				"Her şey bir kütükle başlar."\n				""\n				"&aYeşil&r renk kodları da desteklenir."\n			]\n			rewards: [{\n				id: "11000000000000B1"\n				type: "xp"\n				xp: 50\n			}]\n			shape: "hexagon"\n			size: 1.5d\n`),
-  quest("1100000000000002", 2.5, -1.5, "Çalışma Masası", "minecraft:crafting_table", ["1100000000000001"]),
-  quest("1100000000000003", 2.5, 1.5, "Taş Devri", "minecraft:cobblestone", ["1100000000000001"]),
-  quest("1100000000000004", 5, 0, "Fırın", "minecraft:furnace", ["1100000000000002", "1100000000000003"]),
-  quest("1100000000000005", 7.5, 0, "Demir Çağı", "minecraft:iron_ingot", ["1100000000000004"], `			shape: "gear"\n`),
+  quest("1100000000000001", 0, 0, "Chop Wood", "minecraft:oak_log", [], `			description: [\n				"Everything starts with a log."\n				""\n				"&aColor&r codes work too."\n			]\n			rewards: [{\n				id: "11000000000000B1"\n				type: "xp"\n				xp: 50\n			}]\n			shape: "hexagon"\n			size: 1.5d\n`),
+  quest("1100000000000002", 2.5, -1.5, "Crafting Table", "minecraft:crafting_table", ["1100000000000001"]),
+  quest("1100000000000003", 2.5, 1.5, "Stone Age", "minecraft:cobblestone", ["1100000000000001"]),
+  quest("1100000000000004", 5, 0, "Furnace", "minecraft:furnace", ["1100000000000002", "1100000000000003"]),
+  quest("1100000000000005", 7.5, 0, "Iron Age", "minecraft:iron_ingot", ["1100000000000004"], `			shape: "gear"\n`),
 ].join("\n")}
 	]
-	title: "Başlangıç"
+	title: "Getting Started"
 }
 `,
-      "chapters/elektrik.snbt": `{
+      "chapters/redstone.snbt": `{
 	default_quest_shape: "square"
-	filename: "elektrik"
+	filename: "redstone"
 	group: "6A6A6A6A6A6A6A6A"
 	icon: "minecraft:redstone"
 	id: "2000000000000001"
 	order_index: 1
 	quests: [
 ${[
-  quest("2200000000000001", 0, 0, "Kızıltaş", "minecraft:redstone", ["1100000000000005"]),
+  quest("2200000000000001", 0, 0, "Redstone Dust", "minecraft:redstone", ["1100000000000005"]),
   quest("2200000000000002", 2, 0, "Piston", "minecraft:piston", ["2200000000000001"]),
 ].join("\n")}
 	]
-	title: "Elektrik"
+	title: "Redstone"
 }
 `,
     },
-    "Demo (bellekte, diske yazılmaz)",
+    t("Demo (in memory, never written to disk)"),
   );
 }

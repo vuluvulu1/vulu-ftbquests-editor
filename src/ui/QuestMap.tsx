@@ -21,6 +21,7 @@ import { getBool, getNumber, getString, strings } from "../core/snbt";
 import { questIconId, shortItem } from "./hooks";
 import { ItemIcon, ItemName, useItemIcon, useTextureImage } from "./ItemIcon";
 import { McText } from "./McText";
+import { t } from "../i18n";
 
 /** Pixels per FTB quest-grid unit. */
 export const GRID = 56;
@@ -98,7 +99,7 @@ const QuestNodeView = memo(function QuestNodeView({ data, selected }: NodeProps<
       )}
       <Handle id="in" type="target" position={Position.Top} className="center-handle" isConnectableStart={false} />
       <Handle id="out" type="source" position={Position.Top} className="center-handle" isConnectable={false} />
-      {!data.link && <Handle id="link" type="source" position={Position.Right} className="link-handle" title="Bağımlılık eklemek için sürükleyin" />}
+      {!data.link && <Handle id="link" type="source" position={Position.Right} className="link-handle" title={t("Drag to add a dependency")} />}
     </div>
   );
 });
@@ -130,10 +131,10 @@ const ImageNodeView = memo(function ImageNodeView({ data, selected }: NodeProps<
       {url ? (
         <img src={url} alt="" draggable={false} style={{ transform: data.rotation ? `rotate(${data.rotation}deg)` : undefined }} />
       ) : (
-        <span className="map-image-missing">{url === null ? `bulunamadı: ${data.ref}` : ""}</span>
+        <span className="map-image-missing">{url === null ? `${t("not found")}: ${data.ref}` : ""}</span>
       )}
       {data.dependency && (
-        <span className="map-image-badge" title={`"${data.dependencyTitle ?? data.dependency}" tamamlanınca görünür`}>
+        <span className="map-image-badge" title={t("Visible once \"{quest}\" is complete", { quest: data.dependencyTitle ?? data.dependency })}>
           ⧗
         </span>
       )}
@@ -144,7 +145,7 @@ const ImageNodeView = memo(function ImageNodeView({ data, selected }: NodeProps<
               <McText text={line} />
             </div>
           ))}
-          {data.dependency && <div className="mc-tooltip-sub">Görünür: {data.dependencyTitle ?? data.dependency} tamamlanınca</div>}
+          {data.dependency && <div className="mc-tooltip-sub">{t("Visible once \"{quest}\" is complete", { quest: data.dependencyTitle ?? data.dependency })}</div>}
         </div>
       )}
     </div>
@@ -219,7 +220,7 @@ export function QuestMap({ book, chapter, version, simple, actions, selectedQues
           iconText: iconId ? shortItem(iconId) : (firstTask && getString(firstTask, "type")) || "",
           shape: getString(q, "shape") || defaultShape,
           size: getNumber(q, "size") ?? 1,
-          warning: book.tasks(q).length === 0 ? "Bu görevin hiç şartı yok" : undefined,
+          warning: book.tasks(q).length === 0 ? t("This quest has no tasks") : undefined,
         },
       };
     });
@@ -347,7 +348,7 @@ export function QuestMap({ book, chapter, version, simple, actions, selectedQues
   const onNodeDragStop = useCallback(
     (_: unknown, __: MapNode, dragged: MapNode[]) => {
       const images = book.images(chapter);
-      book.edit("taşı", () => {
+      book.edit("move", () => {
         for (const n of dragged) {
           const x = n.position.x / GRID;
           const y = n.position.y / GRID;
@@ -377,7 +378,7 @@ export function QuestMap({ book, chapter, version, simple, actions, selectedQues
   const onDelete = useCallback(
     ({ nodes: deletedNodes, edges: deletedEdges }: { nodes: MapNode[]; edges: Edge[] }) => {
       const images = book.images(chapter);
-      book.edit("sil", () => {
+      book.edit("delete", () => {
         for (const e of deletedEdges) {
           const target = book.quest(e.target)?.quest;
           if (target) book.removeDependency(target, e.source);
@@ -423,7 +424,7 @@ export function QuestMap({ book, chapter, version, simple, actions, selectedQues
         onDelete={onDelete}
         onBeforeDelete={async ({ nodes: n, edges: e }) => {
           const quests = n.filter((x) => x.type === "quest" && !x.id.startsWith("link:")).length;
-          return quests === 0 || window.confirm(`${quests} görev silinsin mi? (Geri alınabilir)`) ? { nodes: n, edges: e } : false;
+          return quests === 0 || window.confirm(t("Delete {count} quests? (You can undo this)", { count: quests })) ? { nodes: n, edges: e } : false;
         }}
         // Selection follows explicit clicks: React Flow's selection-change event also fires when
         // nodes are rebuilt, which would clear a selection made from outside (a just-added image).
@@ -475,15 +476,15 @@ export function QuestMap({ book, chapter, version, simple, actions, selectedQues
         <Controls showInteractive={false} />
         <MiniMap pannable zoomable nodeColor="#8b8b8b" maskColor="rgba(0,0,0,0.65)" />
         <Panel position="top-right" className="map-toggles">
-          <button className={`map-toggle ${showTitles ? "on" : ""}`} onClick={toggleTitles} title="Oyunda başlıklar sadece fareyle üzerine gelince görünür">
-            Başlıklar: {showTitles ? "açık" : "üzerine gelince"}
+          <button className={`map-toggle ${showTitles ? "on" : ""}`} onClick={toggleTitles} title={t("In game, titles only show on hover")}>
+            {t("Titles")}: {showTitles ? t("shown") : t("on hover")}
           </button>
           <button
             className={`map-toggle ${showConditional ? "on" : ""}`}
             onClick={toggleConditional}
-            title="Bazı resimler oyunda ancak bir görev tamamlanınca görünür (ör. açılan mektup)"
+            title={t("Some images only appear in game once a quest is complete (e.g. an opened letter)")}
           >
-            Koşullu resimler: {showConditional ? "göster" : "gizle"}
+            {t("Conditional images")}: {showConditional ? t("shown") : t("hidden")}
           </button>
         </Panel>
       </ReactFlow>

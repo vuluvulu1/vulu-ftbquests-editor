@@ -43,7 +43,7 @@ export async function readZipDirectory(file: RandomAccessFile, keep: (name: stri
       break;
     }
   }
-  if (eocd < 0) throw new Error(`${file.name}: ZIP değil (dizin sonu bulunamadı)`);
+  if (eocd < 0) throw new Error(`${file.name}: not a ZIP file (end of central directory not found)`);
 
   let cdSize = tv.getUint32(eocd + 12, true);
   let cdOffset = tv.getUint32(eocd + 16, true);
@@ -97,12 +97,12 @@ export async function readZipDirectory(file: RandomAccessFile, keep: (name: stri
 export async function readZipEntry(file: RandomAccessFile, entry: ZipEntry): Promise<Uint8Array> {
   const header = await file.read(entry.localHeaderOffset, 30);
   const hv = view(header);
-  if (hv.getUint32(0, true) !== LOCAL) throw new Error(`${file.name}: ${entry.name} için yerel başlık bozuk`);
+  if (hv.getUint32(0, true) !== LOCAL) throw new Error(`${file.name}: corrupt local header for ${entry.name}`);
   const dataStart = entry.localHeaderOffset + 30 + hv.getUint16(26, true) + hv.getUint16(28, true);
   const data = await file.read(dataStart, entry.compressedSize);
   if (entry.method === 0) return data;
   if (entry.method === 8) return inflateRaw(data);
-  throw new Error(`${file.name}: ${entry.name} desteklenmeyen sıkıştırma (${entry.method})`);
+  throw new Error(`${file.name}: unsupported compression (${entry.method}) for ${entry.name}`);
 }
 
 async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {

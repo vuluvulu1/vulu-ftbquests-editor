@@ -158,7 +158,7 @@ describe("editing", () => {
   it("prevents circular dependencies", async () => {
     const book = await QuestBook.load(legacyFs());
     const first = questOf(book, "1A2B3C4D5E6F7081");
-    expect(() => book.addDependency(first, "4D5E6F708192A3B4")).toThrow(/döngüsel/);
+    expect(() => book.addDependency(first, "4D5E6F708192A3B4")).toThrow(/circular|döngüsel/);
   });
 
   it("creates tasks and rewards in the pack's item style", async () => {

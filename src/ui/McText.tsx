@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, type CSSProperties } from "react";
 import { translateText, translationKey, type Translations } from "../core/text";
+import { t } from "../i18n";
 
 /** Translations of `{key}` texts loaded from the instance's lang files (null until loaded). */
 export const TranslationsContext = createContext<Translations | null>(null);
@@ -17,7 +18,7 @@ export function TranslationHint({ text }: { text: string }) {
   const shown = translate(text);
   return (
     <span className="hint translation">
-      {shown === text ? "Çeviri anahtarı (dil dosyasında bulunamadı)" : <>Oyunda: <McText text={shown} /></>}
+      {shown === text ? t("Translation key (not found in the lang files)") : <>{t("In game")}: <McText text={shown} /></>}
     </span>
   );
 }

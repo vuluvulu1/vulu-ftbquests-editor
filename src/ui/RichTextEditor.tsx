@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ClipboardEvent, type KeyboardEvent, type MouseEvent } from "react";
 import { colorCode, colorHex, MC_COLORS, parseLines, serializeLines, type Run, type RunStyle } from "../core/mcFormat";
+import { t } from "../i18n";
 
 // WYSIWYG editor for Minecraft-formatted text: the text is shown with its colors and the
 // `&` codes are generated from the formatting. The DOM is only rebuilt from `value` when the
@@ -164,25 +165,25 @@ export function RichTextEditor({ value, onCommit, multiline, placeholder }: Prop
     <div className={`rich-text ${multiline ? "multiline" : ""}`}>
       <div className="rich-toolbar" onMouseDown={keepFocus}>
         {MC_COLORS.map((c) => (
-          <button key={c.code} type="button" className="swatch" style={{ background: c.hex }} title={`${c.name} (&${c.code})`} onClick={() => exec("foreColor", c.hex)} />
+          <button key={c.code} type="button" className="swatch" style={{ background: c.hex }} title={`${t(c.name)} (&${c.code})`} onClick={() => exec("foreColor", c.hex)} />
         ))}
-        <button type="button" className="swatch default" title="Varsayılan renk" onClick={() => exec("foreColor", defaultColor())}>
+        <button type="button" className="swatch default" title={t("Default color")} onClick={() => exec("foreColor", defaultColor())}>
           ⊘
         </button>
         <span className="rich-sep" />
-        <button type="button" title="Kalın (Ctrl+B)" onClick={() => exec("bold")}>
-          <b>K</b>
+        <button type="button" title={t("Bold (Ctrl+B)")} onClick={() => exec("bold")}>
+          <b>{t("B")}</b>
         </button>
-        <button type="button" title="İtalik (Ctrl+I)" onClick={() => exec("italic")}>
-          <i>İ</i>
+        <button type="button" title={t("Italic (Ctrl+I)")} onClick={() => exec("italic")}>
+          <i>{t("I")}</i>
         </button>
-        <button type="button" title="Altı çizili (Ctrl+U)" onClick={() => exec("underline")}>
-          <u>A</u>
+        <button type="button" title={t("Underline (Ctrl+U)")} onClick={() => exec("underline")}>
+          <u>{t("U")}</u>
         </button>
-        <button type="button" title="Üstü çizili" onClick={() => exec("strikeThrough")}>
-          <s>Ü</s>
+        <button type="button" title={t("Strikethrough")} onClick={() => exec("strikeThrough")}>
+          <s>{t("S")}</s>
         </button>
-        <button type="button" title="Biçimi temizle" onClick={() => exec("removeFormat")}>
+        <button type="button" title={t("Clear formatting")} onClick={() => exec("removeFormat")}>
           ⌫
         </button>
       </div>

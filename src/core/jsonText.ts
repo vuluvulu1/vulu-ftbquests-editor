@@ -17,7 +17,7 @@ export function setJsonString(text: string, key: string, value: string): string 
   if (existing.test(text)) return text.replace(existing, (_, prefix: string) => prefix + JSON.stringify(value));
 
   const close = text.lastIndexOf("}");
-  if (close < 0) throw new Error("Geçersiz dil dosyası");
+  if (close < 0) throw new Error("Invalid lang file");
   const eol = text.includes("\r\n") ? "\r\n" : "\n";
   const indent = /\n([ \t]+)"/.exec(text)?.[1] ?? "  ";
   const before = text.slice(0, close).replace(/\s*$/, "");

@@ -11,14 +11,15 @@ import { useContextMenu, type MenuItem } from "./ContextMenu";
 import { ItemPicker } from "./ItemPicker";
 import { Modal } from "./Modal";
 import { QuestPicker } from "./QuestPicker";
+import { t } from "../../i18n";
 
 // The quest window as FTB Quests shows it in game: icon + title, subtitle, tasks on the left
 // (blue), rewards on the right (orange), description below; "+" buttons add tasks / rewards.
 
-/** The few switches worth having at hand; everything else is under "Diğer ayarlar". */
+/** The few switches worth having at hand; everything else is under "More settings". */
 const QUICK_FLAGS = [
-  ["optional", "İsteğe bağlı", "Bölümün ilerlemesi için gerekmez"],
-  ["repeatable", "Tekrarlanabilir", "Tamamlandıktan sonra tekrar yapılabilir"],
+  ["optional", "Optional", "Not needed to progress the chapter"],
+  ["repeatable", "Repeatable", "Can be done again after completion"],
 ] as const;
 
 const REWARD_ICONS: Record<string, string> = {
@@ -61,7 +62,7 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
   const add = (kind: Kind, type: string) => {
     const create = (itemId?: string) => {
       const obj = book.edit(
-        kind === "task" ? "şart ekle" : "ödül ekle",
+        kind === "task" ? "add task" : "add reward",
         () => {
           const o = kind === "task" ? book.addTask(quest, type) : book.addReward(quest, type);
           if (itemId) book.setItemId(o, itemId);
@@ -83,10 +84,10 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
     menu(
       e.clientX,
       e.clientY,
-      types.map((t) => ({
-        label: t.label,
-        icon: kind === "task" ? (t.type === "item" ? "minecraft:chest" : taskTypeIcon(t.type)) : t.type === "item" ? "minecraft:chest" : REWARD_ICONS[t.type],
-        onClick: () => add(kind, t.type),
+      types.map((spec) => ({
+        label: t(spec.label),
+        icon: kind === "task" ? (spec.type === "item" ? "minecraft:chest" : taskTypeIcon(spec.type)) : spec.type === "item" ? "minecraft:chest" : REWARD_ICONS[spec.type],
+        onClick: () => add(kind, spec.type),
       })),
     );
   };
@@ -94,9 +95,9 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
   const objMenu = (kind: Kind, obj: SnbtCompound) => (e: MouseEvent) => {
     e.preventDefault();
     const items: MenuItem[] = [
-      { label: "Düzenle", onClick: () => setEditing({ kind, obj }) },
+      { label: t("Edit"), onClick: () => setEditing({ kind, obj }) },
       {
-        label: "Sil",
+        label: t("Delete"),
         danger: true,
         onClick: () => (kind === "task" ? book.removeTask(quest, obj) : book.removeReward(quest, obj)),
       },
@@ -116,12 +117,12 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
         className="quest-view-slot"
         onClick={() => setEditing({ kind, obj })}
         onContextMenu={objMenu(kind, obj)}
-        title="Tıkla: düzenle · Sağ tık: menü"
+        title={t("Click: edit · Right-click: menu")}
       >
         <ItemIcon id={icon} size={32} fallback={type ?? "?"} />
         {count !== undefined && count > 1 && <span className="slot-count">{count}</span>}
         <span className="slot-tooltip mc-tooltip">
-          {title ? <McText text={title} /> : book.itemId(obj) ? <ItemName id={book.itemId(obj)} /> : (kind === "task" ? taskSpec(type) : rewardSpec(type))?.label ?? type}
+          {title ? <McText text={title} /> : book.itemId(obj) ? <ItemName id={book.itemId(obj)} /> : t((kind === "task" ? taskSpec(type) : rewardSpec(type))?.label ?? type ?? "")}
         </span>
       </button>
     );
@@ -130,38 +131,38 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
   return (
     <Modal onClose={onClose} width={620} className="quest-view">
       <div className="quest-view-head">
-        <button className="quest-view-icon" title="Görev simgesini değiştir" onClick={() => setIconPicker(true)}>
+        <button className="quest-view-icon" title={t("Change quest icon")} onClick={() => setIconPicker(true)}>
           <ItemIcon id={questIconId(book, quest)} size={36} fallback="?" />
         </button>
         <div className="quest-view-title">
-          <TranslatableTextField book={book} kind="quest" obj={quest} field="title" placeholder="Başlık (boşsa ilk şartın adı)" />
+          <TranslatableTextField book={book} kind="quest" obj={quest} field="title" placeholder={t("Title (empty: the first task's name)")} />
         </div>
-        <button className="icon-button" title="Görev ayarları (şekil, boyut, görünürlük, bağımlılıklar…)" onClick={onOpenSettings}>
+        <button className="icon-button" title={t("Quest settings (shape, size, visibility, dependencies…)")} onClick={onOpenSettings}>
           ⚙
         </button>
-        <button className="icon-button" title="Kapat (Esc)" onClick={onClose}>
+        <button className="icon-button" title={t("Close (Esc)")} onClick={onClose}>
           ✕
         </button>
       </div>
       <div className="quest-view-subtitle">
-        <TranslatableTextField book={book} kind="quest" obj={quest} field="subtitle" placeholder="Alt başlık" />
+        <TranslatableTextField book={book} kind="quest" obj={quest} field="subtitle" placeholder={t("Subtitle")} />
       </div>
 
       <div className="quest-view-columns">
         <section>
-          <h3 className="tasks-title">Şartlar</h3>
+          <h3 className="tasks-title">{t("Tasks")}</h3>
           <div className="quest-view-slots">
             {book.tasks(quest).map((t) => box("task", t))}
-            <button className="quest-view-slot add" title="Şart ekle" onClick={addMenu("task")}>
+            <button className="quest-view-slot add" title={t("Add task")} onClick={addMenu("task")}>
               +
             </button>
           </div>
         </section>
         <section>
-          <h3 className="rewards-title">Ödüller</h3>
+          <h3 className="rewards-title">{t("Rewards")}</h3>
           <div className="quest-view-slots">
             {book.rewards(quest).map((r) => box("reward", r))}
-            <button className="quest-view-slot add" title="Ödül ekle" onClick={addMenu("reward")}>
+            <button className="quest-view-slot add" title={t("Add reward")} onClick={addMenu("reward")}>
               +
             </button>
           </div>
@@ -169,24 +170,24 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
       </div>
 
       <div className="quest-view-deps">
-        <span className="quest-view-label" title="Bu görev, bunlar tamamlanınca açılır">
-          Gereksinimler
+        <span className="quest-view-label" title={t("This quest unlocks once these are complete")}>
+          {t("Requirements")}
         </span>
         {deps.map((d) => {
           const dep = book.quest(d);
           const depChapter = !dep ? book.chapter(d) : undefined;
-          const name = dep ? questName(dep.quest) : depChapter ? `Bölüm: ${stripFormatting(translate(book.getText("chapter", depChapter.root, "title")))}` : d;
+          const name = dep ? questName(dep.quest) : depChapter ? `${t("Chapter")}: ${stripFormatting(translate(book.getText("chapter", depChapter.root, "title")))}` : d;
           return (
-            <span key={d} className={`dep-chip ${dep || depChapter ? "" : "broken"}`} title={dep || depChapter ? name : "Bu görev kitapta yok"}>
+            <span key={d} className={`dep-chip ${dep || depChapter ? "" : "broken"}`} title={dep || depChapter ? name : t("This quest isn't in the book")}>
               {dep && <ItemIcon id={questIconId(book, dep.quest)} size={16} fallback="" />}
               <span className="dep-chip-name">{name}</span>
-              <button className="dep-chip-remove" title="Kaldır" onClick={() => book.removeDependency(quest, d)}>
+              <button className="dep-chip-remove" title={t("Remove")} onClick={() => book.removeDependency(quest, d)}>
                 ×
               </button>
             </span>
           );
         })}
-        <button className="dep-chip add" title="Gereksinim ekle" onClick={() => setDepPicker(true)}>
+        <button className="dep-chip add" title={t("Add requirement")} onClick={() => setDepPicker(true)}>
           +
         </button>
       </div>
@@ -200,23 +201,23 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
           <button
             key={key}
             className={`flag-chip ${getBool(quest, key) ? "on" : ""}`}
-            title={hint}
+            title={t(hint)}
             onClick={() => book.edit(label, () => setFlag(quest, key, !getBool(quest, key)), quest)}
           >
             {getBool(quest, key) ? "✓ " : ""}
-            {label}
+            {t(label)}
           </button>
         ))}
         <span className="spacer" />
         <button className="link-button" onClick={onOpenSettings}>
-          Diğer ayarlar…
+          {t("More settings…")}
         </button>
       </div>
 
       {iconPicker && (
         <ItemPicker
-          title="Görev simgesi"
-          clearLabel="Otomatik (ilk şartın eşyası)"
+          title={t("Quest icon")}
+          clearLabel={t("Automatic (the first task's item)")}
           onClear={() => {
             setIconPicker(false);
             book.setItemId(quest, "", "icon");
@@ -231,7 +232,7 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
       {depPicker && (
         <QuestPicker
           book={book}
-          title="Gereksinim ekle"
+          title={t("Add requirement")}
           exclude={[questId, ...deps]}
           onClose={() => setDepPicker(false)}
           onPick={(id) => {
@@ -246,7 +247,7 @@ export function QuestView({ book, version, questId, onClose, onOpenSettings, onE
       )}
 
       {editing && (
-        <Modal title={editing.kind === "task" ? "Şart" : "Ödül"} onClose={() => setEditing(null)} width={460}>
+        <Modal title={editing.kind === "task" ? t("Task") : t("Reward")} onClose={() => setEditing(null)} width={460}>
           <SubObjectEditor
             simple
             book={book}

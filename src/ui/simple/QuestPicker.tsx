@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
 import type { QuestBook } from "../../core/book";
 import { getString } from "../../core/snbt";
+import { fold } from "../../core/text";
 import { questIconId } from "../hooks";
 import { ItemIcon } from "../ItemIcon";
 import { stripFormatting, useTranslate } from "../McText";
 import { Modal } from "./Modal";
+import { t } from "../../i18n";
 
 const MAX_RESULTS = 60;
 
@@ -26,15 +28,15 @@ export function QuestPicker({ book, title, exclude, onPick, onClose }: { book: Q
     [book, translate],
   );
 
-  const needle = query.trim().toLocaleLowerCase("tr");
+  const needle = fold(query.trim());
   const results = all
     .filter((q) => !exclude.includes(q.id))
-    .filter((q) => !needle || `${q.name} ${q.chapter} ${q.id}`.toLocaleLowerCase("tr").includes(needle))
+    .filter((q) => !needle || fold(`${q.name} ${q.chapter} ${q.id}`).includes(needle))
     .slice(0, MAX_RESULTS);
 
   return (
     <Modal title={title} onClose={onClose} width={520}>
-      <input autoFocus value={query} placeholder="Görev ara: başlık, bölüm veya kimlik" onChange={(e) => setQuery(e.target.value)} />
+      <input autoFocus value={query} placeholder={t("Search quests: title, chapter or ID")} onChange={(e) => setQuery(e.target.value)} />
       <div className="quest-pick-list">
         {results.map((q) => (
           <button key={q.id} className="quest-pick" onClick={() => onPick(q.id)}>
@@ -43,7 +45,7 @@ export function QuestPicker({ book, title, exclude, onPick, onClose }: { book: Q
             <span className="quest-pick-chapter">{q.chapter}</span>
           </button>
         ))}
-        {results.length === 0 && <p className="hint">Eşleşen görev yok.</p>}
+        {results.length === 0 && <p className="hint">{t("No matching quests.")}</p>}
       </div>
     </Modal>
   );

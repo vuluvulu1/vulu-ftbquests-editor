@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { archivesFromSpecs, type AssetHost, type InstanceAssetInfo } from "../core/assets/sources";
 import type { QuestFileSystem } from "../core/fs";
+import { t } from "../i18n";
 
 // Desktop build: file access goes through the Rust commands in src-tauri/src.
 
@@ -17,7 +18,7 @@ const assetHost: AssetHost = {
 };
 
 export async function openTauriFolder(): Promise<QuestFileSystem | undefined> {
-  const picked = await open({ directory: true, title: "Mod paketinin (instance) klasörünü seçin" });
+  const picked = await open({ directory: true, title: t("Choose the modpack's instance folder") });
   if (typeof picked !== "string") return undefined;
   const root = await invoke<string>("resolve_root", { path: picked });
 

@@ -5,6 +5,7 @@ import { translateText, translationKey } from "../core/text";
 import { TextArea, TextField } from "./inputs";
 import { TranslationHint } from "./McText";
 import { RichTextEditor } from "./RichTextEditor";
+import { t } from "../i18n";
 
 // Text fields for titles and descriptions. Formatted text is edited visually (colors and
 // styles shown in place); texts written as `{translation.key}` show and edit what the game
@@ -13,10 +14,10 @@ import { RichTextEditor } from "./RichTextEditor";
 function Caption({ file, showingKey, onToggle }: { file?: string; showingKey: boolean; onToggle(): void }) {
   return (
     <span className="hint field-caption">
-      {showingKey ? "Çeviri anahtarı düzenleniyor" : file ? <>Dil dosyası: <span className="mono">{file}</span></> : "Mod dosyasından gelen çeviri (düzenlenemez)"}
+      {showingKey ? t("Editing the translation key") : file ? <>{t("Lang file")}: <span className="mono">{file}</span></> : t("Translation from a mod file (read-only)")}
       {" · "}
       <button type="button" className="link-button" onClick={onToggle}>
-        {showingKey ? "metni göster" : "anahtarı düzenle"}
+        {showingKey ? t("show text") : t("edit key")}
       </button>
     </span>
   );
@@ -51,7 +52,7 @@ export function TranslatableTextField({ book, kind, obj, field, placeholder }: F
   const text = book.translation(key) ?? "";
   return (
     <>
-      {file ? <RichTextEditor value={text} onCommit={(v) => book.setTranslation(key, v)} /> : <input value={text || "(çeviri bulunamadı)"} disabled />}
+      {file ? <RichTextEditor value={text} onCommit={(v) => book.setTranslation(key, v)} /> : <input value={text || t("(translation not found)")} disabled />}
       <Caption file={file} showingKey={false} onToggle={() => setShowKey(true)} />
     </>
   );

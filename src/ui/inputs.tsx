@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { ItemIcon, ItemName } from "./ItemIcon";
 import { ItemPicker } from "./simple/ItemPicker";
+import { t } from "../i18n";
 
 // Inputs that keep a local draft and only commit on blur / Enter, so every
 // keystroke does not become a separate undo step.
@@ -77,14 +78,14 @@ export function ItemField({ value, onCommit, placeholder, iconRef }: DraftProps<
   const [picking, setPicking] = useState(false);
   return (
     <div className="item-field">
-      <button type="button" className="item-field-pick" title="Listeden seç" onClick={() => setPicking(true)}>
+      <button type="button" className="item-field-pick" title={t("Choose from the list")} onClick={() => setPicking(true)}>
         <ItemIcon id={iconRef || value || undefined} size={32} fallback="?" />
       </button>
       <div className="item-field-input">
         <div className="row">
-          <TextField mono value={value} placeholder={placeholder ?? "ör. minecraft:diamond"} onCommit={(v) => onCommit(v.trim())} />
+          <TextField mono value={value} placeholder={placeholder ?? t("e.g. minecraft:diamond")} onCommit={(v) => onCommit(v.trim())} />
           <button type="button" onClick={() => setPicking(true)}>
-            Seç…
+            {t("Choose…")}
           </button>
         </div>
         {value && (

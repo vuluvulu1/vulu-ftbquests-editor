@@ -392,3 +392,8 @@
 .quest-view .field-caption {
   display: none;
 }
+
+.lang-select {
+  width: auto;
+  flex: none;
+}

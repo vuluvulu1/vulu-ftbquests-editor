@@ -48,8 +48,8 @@ choose **More info → Run anyway**.
 On first launch you'll be asked to pick **Simple** (recommended) or **Advanced** mode. You can switch
 later from the toolbar.
 
-> [!NOTE]
-> The interface is currently in Turkish. Button names in this README are the English equivalents.
+The interface is available in **English** and **Turkish**; it follows your system language, and you can
+switch it from the toolbar at any time.
 
 ### Controls
 

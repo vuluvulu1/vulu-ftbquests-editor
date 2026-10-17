@@ -26,6 +26,7 @@ import {
   type SnbtDocument,
   type SnbtValue,
 } from "./snbt";
+import { t } from "../i18n";
 
 /** Object kinds as used in FTB Quests lang keys, e.g. `quest.<id>.title`. */
 export type ObjectKind = "file" | "chapter_group" | "chapter" | "quest" | "task" | "reward" | "reward_table";
@@ -117,7 +118,7 @@ export class QuestBook {
     const book = new QuestBook(fs);
     const paths = (await fs.list()).filter((p) => p.endsWith(".snbt")).sort();
     if (!paths.includes("data.snbt")) {
-      throw new Error("data.snbt bulunamadı. config/ftbquests/quests klasörünü seçtiğinizden emin olun.");
+      throw new Error(t("data.snbt not found. Make sure you chose the right folder."));
     }
     for (const path of paths) {
       const text = await fs.read(path);
@@ -252,7 +253,7 @@ export class QuestBook {
    * written on the next save, before the quest files that use it.
    */
   addInstanceTexture(path: string, png: Uint8Array) {
-    if (!this.fs.writeInstanceBinary) throw new Error("Bu açılış şekliyle pakete dosya eklenemiyor.");
+    if (!this.fs.writeInstanceBinary) throw new Error(t("Files can't be added to the pack when it's opened this way."));
     this.pendingFiles.set(path, png);
     this.notify();
   }
@@ -269,7 +270,7 @@ export class QuestBook {
     // Safety net: pick up any change an edit did not declare in its targets.
     const stray = this.diff("all");
     if (stray.length > 0) {
-      this.commit("değişiklik", stray);
+      this.commit("change", stray);
       if (import.meta.env?.DEV) console.warn("Edits outside declared targets:", stray.map((c) => c.path));
     }
     const { written, removed } = this.pendingChanges();
@@ -405,8 +406,8 @@ export class QuestBook {
   /** Changes what `{key}` shows in game by editing its lang file. */
   setTranslation(key: string, value: string) {
     const path = this.keyFiles.get(key);
-    if (!path) throw new Error(`Bu metnin çevirisi düzenlenemez: ${key}`);
-    this.edit("çeviri", () => this.texts.set(path, setJsonString(this.texts.get(path)!, key, value)), path);
+    if (!path) throw new Error(t("This text's translation can't be edited: {key}", { key }));
+    this.edit("translation", () => this.texts.set(path, setJsonString(this.texts.get(path)!, key, value)), path);
   }
 
   /** True when every `{key}` line of the description can be edited as translated text. */
@@ -427,7 +428,7 @@ export class QuestBook {
     const keys = raw.map(translationKey).filter((k): k is string => !!k);
     const files = [...new Set(keys.map((k) => this.keyFiles.get(k)).filter((p): p is string => !!p))];
     this.edit(
-      "açıklama",
+      "description",
       () => {
         const out: string[] = [];
         lines.forEach((line, i) => {
@@ -643,7 +644,7 @@ export class QuestBook {
   }
 
   setText(kind: ObjectKind, obj: SnbtCompound, field: TextField, value: string, locale = this.locale) {
-    this.edit(`${field} değiştir`, () => {
+    this.edit(`change ${field}`, () => {
       const lines = value.split("\n");
       if (!this.format.lang) {
         const key = INLINE_TEXT_KEY[field];
@@ -721,7 +722,7 @@ export class QuestBook {
   }
 
   setItemId(obj: SnbtCompound, id: string, key = "item") {
-    this.edit("eşya değiştir", () => {
+    this.edit("change item", () => {
       const item = obj.entries.get(key);
       if (id === "" && key !== "item") obj.entries.delete(key);
       else if (item?.kind === "string") item.value = id;
@@ -737,7 +738,7 @@ export class QuestBook {
   // ---- Chapters --------------------------------------------------------------
 
   addChapter(title: string, group = ""): Chapter {
-    return this.edit("bölüm ekle", () => {
+    return this.edit("add chapter", () => {
       const filename = this.uniqueFilename(title);
       const order = Math.max(-1, ...this.chapters.map((c) => getNumber(c.root, "order_index") ?? 0)) + 1;
       const root = compound({
@@ -760,7 +761,7 @@ export class QuestBook {
   }
 
   deleteChapter(chapter: Chapter) {
-    this.edit("bölümü sil", () => {
+    this.edit("delete chapter", () => {
       for (const quest of this.quests(chapter)) this.deleteQuest(getString(quest, "id")!);
       // Quests may depend on a whole chapter.
       for (const other of this.chapters) for (const quest of this.quests(other)) this.removeDependency(quest, chapter.id);
@@ -772,7 +773,7 @@ export class QuestBook {
 
   /** Moves a chapter to `newIndex` in the sorted chapter list and renumbers `order_index`. */
   moveChapter(chapter: Chapter, newIndex: number) {
-    this.edit("bölüm sırası", () => {
+    this.edit("chapter order", () => {
       const ordered = this.chapters.filter((c) => c.path !== chapter.path);
       ordered.splice(Math.max(0, Math.min(newIndex, ordered.length)), 0, chapter);
       ordered.forEach((c, i) => setNumber(c.root, "order_index", i, "int"));
@@ -800,7 +801,7 @@ export class QuestBook {
   // ---- Quests ----------------------------------------------------------------
 
   addQuest(chapter: Chapter, x: number, y: number): SnbtCompound {
-    return this.edit("görev ekle", () => {
+    return this.edit("add quest", () => {
       const quest = compound({ id: str(this.newId()), x: double(x), y: double(y) });
       let quests = getList(chapter.root, "quests");
       if (!quests) setEntry(chapter.root, "quests", (quests = list()));
@@ -813,7 +814,7 @@ export class QuestBook {
   moveQuest(id: string, x: number, y: number) {
     const found = this.quest(id);
     if (!found) return;
-    this.edit("görevi taşı", () => {
+    this.edit("move quest", () => {
       setNumber(found.quest, "x", x, "double");
       setNumber(found.quest, "y", y, "double");
     }, found.quest);
@@ -822,7 +823,7 @@ export class QuestBook {
   moveQuestLink(chapter: Chapter, linkId: string, x: number, y: number) {
     const link = this.questLinks(chapter).find((l) => getString(l, "id") === linkId);
     if (!link) return;
-    this.edit("bağlantıyı taşı", () => {
+    this.edit("move link", () => {
       setNumber(link, "x", x, "double");
       setNumber(link, "y", y, "double");
     }, link);
@@ -839,7 +840,7 @@ export class QuestBook {
   /** Adds an image centred at (x, y), sized in quest-grid units. */
   addImage(chapter: Chapter, image: string, x: number, y: number, width = 1, height = 1): SnbtCompound {
     return this.edit(
-      "resim ekle",
+      "add image",
       () => {
         const img = compound({
           height: double(height),
@@ -864,7 +865,7 @@ export class QuestBook {
     const x = corner ? centerX - (getNumber(img, "width") ?? 1) / 2 : centerX;
     const y = corner ? centerY - (getNumber(img, "height") ?? 1) / 2 : centerY;
     this.edit(
-      "resmi taşı",
+      "move image",
       () => {
         setNumber(img, "x", x, "double");
         setNumber(img, "y", y, "double");
@@ -875,7 +876,7 @@ export class QuestBook {
 
   deleteImage(chapter: Chapter, img: SnbtCompound) {
     this.edit(
-      "resmi sil",
+      "delete image",
       () => {
         const images = getList(chapter.root, "images");
         if (!images) return;
@@ -889,7 +890,7 @@ export class QuestBook {
   deleteQuest(id: string) {
     const found = this.quest(id);
     if (!found) return;
-    this.edit("görevi sil", () => {
+    this.edit("delete quest", () => {
       const quests = getList(found.chapter.root, "quests")!;
       quests.items = quests.items.filter((q) => q !== found.quest);
 
@@ -917,9 +918,9 @@ export class QuestBook {
   addDependency(quest: SnbtCompound, dependsOn: string) {
     if (getString(quest, "id") === dependsOn || this.dependencies(quest).includes(dependsOn)) return;
     if (this.dependsTransitively(dependsOn, getString(quest, "id")!)) {
-      throw new Error("Bu bağlantı döngüsel bir bağımlılık oluşturur.");
+      throw new Error(t("This would create a circular dependency."));
     }
-    this.edit("bağımlılık ekle", () => {
+    this.edit("add dependency", () => {
       setStrings(quest, "dependencies", [...this.dependencies(quest), dependsOn], { inline: true });
     }, quest);
   }
@@ -927,7 +928,7 @@ export class QuestBook {
   removeDependency(quest: SnbtCompound, dependsOn: string) {
     const deps = this.dependencies(quest);
     if (!deps.includes(dependsOn)) return;
-    this.edit("bağımlılık kaldır", () => {
+    this.edit("remove dependency", () => {
       setStrings(
         quest,
         "dependencies",
@@ -979,7 +980,7 @@ export class QuestBook {
 
   private addSub(quest: SnbtCompound, key: "tasks" | "rewards", type: string): SnbtCompound {
     const spec = (key === "tasks" ? TASK_TYPES : REWARD_TYPES).find((t) => t.type === type);
-    return this.edit(key === "tasks" ? "şart ekle" : "ödül ekle", () => {
+    return this.edit(key === "tasks" ? "add task" : "add reward", () => {
       const obj = spec?.create() ?? compound();
       setEntry(obj, "id", str(this.newId()));
       setEntry(obj, "type", str(type));
@@ -994,7 +995,7 @@ export class QuestBook {
   }
 
   private removeSub(quest: SnbtCompound, key: "tasks" | "rewards", obj: SnbtCompound) {
-    this.edit(key === "tasks" ? "şartı sil" : "ödülü sil", () => {
+    this.edit(key === "tasks" ? "delete task" : "delete reward", () => {
       const items = getList(quest, key);
       if (!items) return;
       items.items = items.items.filter((x) => x !== obj);
@@ -1008,7 +1009,7 @@ export class QuestBook {
    * The object keeps its identity so references held by the UI stay valid.
    */
   replaceContents(target: SnbtCompound, replacement: SnbtCompound) {
-    this.edit("SNBT düzenle", () => {
+    this.edit("edit SNBT", () => {
       target.entries = new Map(replacement.entries);
       target.inline = replacement.inline;
     }, target);

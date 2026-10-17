@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { t, useLang } from "./i18n";
 import { AssetIndex } from "./core/assets/assetIndex";
 import { ItemAssets } from "./core/assets/items";
 import { QuestBook } from "./core/book";
@@ -14,6 +15,7 @@ import { ContextMenuHost } from "./ui/simple/ContextMenu";
 import { savedMode, saveMode, type EditorMode } from "./ui/simple/mode";
 import { ModeChooser } from "./ui/simple/ModeChooser";
 import { Workspace } from "./ui/Workspace";
+import { LanguageSelect } from "./ui/LanguageSelect";
 
 interface Toast {
   kind: "info" | "error";
@@ -39,6 +41,8 @@ export function App() {
   const [loadSource, setLoadSource] = useState("");
   const loadToken = useRef(0);
   const version = useBookVersion(book);
+  // A language switch remounts the workspace so every label is redrawn (selection lives here).
+  const lang = useLang();
 
   const notify = useCallback((kind: Toast["kind"], text: string) => setToast({ kind, text }), []);
   const onError = useCallback((text: string) => notify("error", text), [notify]);
@@ -54,7 +58,7 @@ export function App() {
    * draws icons, showing each step on the loading screen. A newer load cancels an older one.
    */
   const load = async (getFs: () => Promise<QuestFileSystem | undefined>) => {
-    if (book?.dirty && !window.confirm("Kaydedilmemiş değişiklikler kaybolacak. Devam edilsin mi?")) return;
+    if (book?.dirty && !window.confirm(t("Unsaved changes will be lost. Continue?"))) return;
     let fs: QuestFileSystem | undefined;
     try {
       fs = await getFs();
@@ -81,8 +85,8 @@ export function App() {
       setChapterId(loaded.chapters[0]?.id ?? null);
       setQuestId(null);
       const questCount = loaded.chapters.reduce((n, c) => n + loaded.quests(c).length, 0);
-      step("book", { state: "done", detail: `${loaded.chapters.length} bölüm, ${questCount} görev` });
-      if (loaded.issues.length > 0) notify("error", `${loaded.issues.length} dosya okunamadı; bu dosyalara dokunulmayacak.`);
+      step("book", { state: "done", detail: t("{chapters} chapters, {quests} quests", { chapters: loaded.chapters.length, quests: questCount }) });
+      if (loaded.issues.length > 0) notify("error", t("{count} files could not be read; they will be left untouched.", { count: loaded.issues.length }));
       setBusy(false);
       if (fs.assets) await loadAssets(fs, loaded, step, current);
     } catch (e) {
@@ -107,21 +111,21 @@ export function App() {
     if (!current()) return;
     if (!bundle) {
       for (const id of ["index", "texts", "icons"] as const) step(id, { state: "skipped" });
-      setAssetStatus({ text: "İkon yok", title: "Instance'ın mods klasörüne ulaşılamadı." });
+      setAssetStatus({ text: t("No icons"), title: t("Couldn't reach the instance's mods folder.") });
       return;
     }
     const index = await AssetIndex.build(bundle.archives, (p) => step("index", { detail: `${p.done}/${p.total}` }));
     if (!current()) return;
     const assets = new ItemAssets(index);
     setAssets(assets);
-    step("index", { state: "done", detail: `${index.archives} kaynak` });
+    step("index", { state: "done", detail: t("{count} sources", { count: index.archives }) });
 
     step("texts", { state: "active" });
     const keys = loaded.translationKeys();
     const translations = await assets.translations(keys, (d, t) => step("texts", { detail: `${d}/${t}` }));
     if (!current()) return;
     await loaded.attachTranslations(translations);
-    step("texts", { state: "done", detail: keys.size ? `${translations.size}/${keys.size} metin` : "gerekmiyor" });
+    step("texts", { state: "done", detail: keys.size ? t("{found}/{total} texts", { found: translations.size, total: keys.size }) : t("not needed") });
 
     step("icons", { state: "active" });
     const ids = loaded.chapters.flatMap((c) => [
@@ -134,13 +138,13 @@ export function App() {
     step("icons", { state: "done" });
 
     const warnings = [
-      !bundle.vanilla && "Vanilla Minecraft jar'ı bulunamadı: minecraft: eşyalarının ikonları eksik olacak.",
-      index.issues.length > 0 && `${index.issues.length} dosya okunamadı: ${index.issues.map((i) => i.file).join(", ")}`,
-      keys.size > translations.size && `${keys.size - translations.size} çeviri anahtarı dil dosyalarında bulunamadı.`,
+      !bundle.vanilla && t("Vanilla Minecraft jar not found: minecraft: items will have no icons."),
+      index.issues.length > 0 && t("{count} files could not be read: {files}", { count: index.issues.length, files: index.issues.map((i) => i.file).join(", ") }),
+      keys.size > translations.size && t("{count} translation keys were not found in the lang files.", { count: keys.size - translations.size }),
     ].filter(Boolean);
     setAssetStatus({
-      text: `${warnings.length ? "⚠ " : ""}${index.archives} kaynak`,
-      title: [`Minecraft ${bundle.version ?? "?"}, ${index.size} dosya`, ...warnings].join("\n"),
+      text: `${warnings.length ? "⚠ " : ""}${t("{count} sources", { count: index.archives })}`,
+      title: [t("Minecraft {version}, {count} files", { version: bundle.version ?? "?", count: index.size }), ...warnings].join("\n"),
     });
   };
 
@@ -159,9 +163,9 @@ export function App() {
       setBusy(true);
       const result = await book.save();
       const count = result.written.length + result.removed.length;
-      notify("info", `${count} dosya kaydedildi.${result.backup ? ` Yedek: ${result.backup}` : ""}`);
+      notify("info", t("{count} files saved.", { count }) + (result.backup ? ` ${t("Backup: {path}", { path: result.backup })}` : ""));
     } catch (e) {
-      notify("error", `Kaydetme başarısız: ${e instanceof Error ? e.message : String(e)}`);
+      notify("error", t("Save failed: {error}", { error: e instanceof Error ? e.message : String(e) }));
     } finally {
       setBusy(false);
     }
@@ -223,8 +227,8 @@ export function App() {
           <img src="/logo.svg" alt="" className="logo-mark" />
           Vulu FTBQuests Editor
         </strong>
-        <button onClick={openFolder} disabled={!canOpen || busy} title={canOpen ? "" : "Bu tarayıcı klasör erişimini desteklemiyor (Chrome/Edge kullanın)"}>
-          Mod paketi aç
+        <button onClick={openFolder} disabled={!canOpen || busy} title={canOpen ? "" : t("This browser doesn't support folder access (use Chrome or Edge)")}>
+          {t("Open modpack")}
         </button>
         <button className="secondary" onClick={() => load(async () => demoFileSystem())} disabled={busy}>
           Demo
@@ -234,13 +238,13 @@ export function App() {
             <span className="path mono" title={book.fs.label}>
               {book.fs.label}
             </span>
-            <span className="badge">{book.format.lang ? "lang dosyalı (1.21+)" : "klasik SNBT (1.18–1.20)"}</span>
+            <span className="badge">{book.format.lang ? t("lang files (1.21+)") : t("classic SNBT (1.18–1.20)")}</span>
             {book.format.lang && (
               <select
                 value={book.locale}
                 onChange={(e) => book.setLocale(e.target.value)}
 
-                title="Düzenlenen dil"
+                title={t("Language being edited")}
               >
                 {book.locales.map((l) => (
                   <option key={l}>{l}</option>
@@ -249,12 +253,12 @@ export function App() {
             )}
             {book.issues.length > 0 && (
               <button className="warning" onClick={() => setShowIssues(!showIssues)}>
-                ⚠ {book.issues.length} hata
+                ⚠ {t("{count} errors", { count: book.issues.length })}
               </button>
             )}
             {activeStep && !overlay ? (
               <span className="badge dim">
-                <span className="spinner small" /> {activeStep.label} {activeStep.detail}
+                <span className="spinner small" /> {t(activeStep.label)} {activeStep.detail}
               </span>
             ) : (
               assetStatus && (
@@ -264,20 +268,22 @@ export function App() {
               )
             )}
             <span className="spacer" />
-            <button className="secondary" onClick={() => setChoosingMode(true)} title="Basit / gelişmiş düzenleme">
-              Mod: {mode === "advanced" ? "Gelişmiş" : "Basit"}
+            <button className="secondary" onClick={() => setChoosingMode(true)} title={t("Simple / advanced editing")}>
+              {t("Mode")}: {mode === "advanced" ? t("Advanced") : t("Simple")}
             </button>
-            <button className="secondary" disabled={!book.canUndo} onClick={() => book.undo()} title={book.undoLabel ? `Geri al: ${book.undoLabel}` : ""}>
-              ↶ Geri al
+            <button className="secondary" disabled={!book.canUndo} onClick={() => book.undo()} title={book.undoLabel ? t("Undo: {action}", { action: t(book.undoLabel) }) : ""}>
+              ↶ {t("Undo")}
             </button>
-            <button className="secondary" disabled={!book.canRedo} onClick={() => book.redo()} title={book.redoLabel ? `Yinele: ${book.redoLabel}` : ""}>
-              ↷ Yinele
+            <button className="secondary" disabled={!book.canRedo} onClick={() => book.redo()} title={book.redoLabel ? t("Redo: {action}", { action: t(book.redoLabel) }) : ""}>
+              ↷ {t("Redo")}
             </button>
             <button onClick={save} disabled={!book.dirty || busy} className={book.dirty ? "primary" : undefined}>
-              {book.dirty ? `Kaydet (${book.pendingChanges().written.length + book.pendingChanges().removed.length})` : "Kaydedildi"}
+              {book.dirty ? t("Save ({count})", { count: book.pendingChanges().written.length + book.pendingChanges().removed.length }) : t("Saved")}
             </button>
           </>
         )}
+        {!book && <span className="spacer" />}
+        <LanguageSelect />
       </header>
 
       {showIssues && book && (
@@ -296,7 +302,7 @@ export function App() {
         <AssetsContext.Provider value={assets}>
         <ThemeBackdrop />
         <TranslationsContext.Provider value={book.translations}>
-        <ContextMenuHost>
+        <ContextMenuHost key={lang}>
           <Workspace
             book={book}
             version={version}
@@ -346,24 +352,25 @@ function Welcome({ canOpen, onOpen, onDemo }: { canOpen: boolean; onOpen(): void
     <div className="welcome">
       <img src="/logo.svg" alt="" className="welcome-logo" />
       <h1>Vulu FTBQuests Editor</h1>
-      <p>Görev kitabını oyuna girmeden düzenleyin. Minecraft 1.18 – 1.20.1 (1.21+ deneysel).</p>
+      <p>{t("Edit your quest book without starting the game. Minecraft 1.18 – 1.20.1 (1.21+ experimental).")}</p>
       <ol>
-        <li>Oyunu (veya sunucuyu) kapatın; açıkken kaydederse değişiklikleriniz ezilebilir.</li>
+        <li>{t("Close the game (or server) first; if it saves while open, it can overwrite your changes.")}</li>
         <li>
-          Mod paketinin <b>instance klasörünü</b> seçin (içinde <code>mods</code> ve <code>config</code> olan, ör.{" "}
-          <code>CurseForge\Instances\PaketAdı</code>). Eşya ikonları, isimleri ve çeviriler oradan okunur.
+          {t("Choose the modpack's instance folder (the one with mods and config in it, e.g. CurseForge\\Instances\\MyPack). Item icons, names and translations are read from there.")}
         </li>
-        <li>Kaydetmeden önce otomatik yedek <code>config/ftbquests/editor-backups</code> altına alınır.</li>
+        <li>
+          {t("A backup is made automatically before every save, under")} <code>config/ftbquests/editor-backups</code>.
+        </li>
       </ol>
       <div className="row">
         <button className="primary" onClick={onOpen} disabled={!canOpen}>
-          Mod paketi klasörünü aç
+          {t("Open modpack folder")}
         </button>
         <button className="secondary" onClick={onDemo}>
-          Demo ile dene
+          {t("Try the demo")}
         </button>
       </div>
-      {!canOpen && <p className="hint">Bu tarayıcı klasör erişimini desteklemiyor. Chrome/Edge veya masaüstü uygulamasını kullanın.</p>}
+      {!canOpen && <p className="hint">{t("This browser doesn't support folder access. Use Chrome, Edge or the desktop app.")}</p>}
     </div>
   );
 }

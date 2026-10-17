@@ -20,7 +20,7 @@ fn quests_root(root: &str) -> CmdResult<PathBuf> {
     if root.join("data.snbt").is_file() {
         Ok(root)
     } else {
-        Err(format!("Geçerli bir quests klasörü değil: {}", root.display()))
+        Err(format!("Not a valid quests folder: {}", root.display()))
     }
 }
 
@@ -28,7 +28,7 @@ fn quests_root(root: &str) -> CmdResult<PathBuf> {
 fn resolve(root: &str, rel: &str) -> CmdResult<PathBuf> {
     let rel_path = Path::new(rel);
     if rel.is_empty() || rel_path.components().any(|c| !matches!(c, Component::Normal(_))) {
-        return Err(format!("Geçersiz yol: {rel}"));
+        return Err(format!("Invalid path: {rel}"));
     }
     Ok(quests_root(root)?.join(rel_path))
 }
@@ -48,7 +48,7 @@ fn resolve_root(path: String) -> CmdResult<String> {
     if picked.join("data.snbt").is_file() {
         return Ok(picked.to_string_lossy().into_owned());
     }
-    Err("Bu klasörde FTB Quests bulunamadı. Mod paketinin instance klasörünü seçin (içinde mods ve config klasörleri olan).".into())
+    Err("No FTB Quests found in this folder. Choose the modpack's instance folder (the one with mods and config in it).".into())
 }
 
 fn walk(dir: &Path, prefix: &str, out: &mut Vec<String>) -> std::io::Result<()> {
@@ -121,9 +121,9 @@ fn instance_file(root: &str, rel: &str) -> CmdResult<PathBuf> {
         && parts[3].as_os_str() == "lang"
         && rel.ends_with(".json");
     if !valid {
-        return Err(format!("Bu dosya düzenlenemez: {rel}"));
+        return Err(format!("This file can't be edited: {rel}"));
     }
-    let instance = quests_root(root)?.ancestors().nth(3).map(Path::to_path_buf).ok_or("Instance klasörü bulunamadı")?;
+    let instance = quests_root(root)?.ancestors().nth(3).map(Path::to_path_buf).ok_or("Instance folder not found")?;
     Ok(instance.join(rel_path))
 }
 
@@ -139,9 +139,9 @@ fn instance_texture(root: &str, rel: &str) -> CmdResult<PathBuf> {
         && rel.ends_with(".png")
         && lowercase;
     if !valid {
-        return Err(format!("Bu dosya yazılamaz: {rel}"));
+        return Err(format!("Not writable: {rel}"));
     }
-    let instance = quests_root(root)?.ancestors().nth(3).map(Path::to_path_buf).ok_or("Instance klasörü bulunamadı")?;
+    let instance = quests_root(root)?.ancestors().nth(3).map(Path::to_path_buf).ok_or("Instance folder not found")?;
     Ok(instance.join(rel_path))
 }
 
@@ -186,7 +186,7 @@ fn backup(root: String, instance_files: Option<Vec<String>>) -> CmdResult<String
         .map(|rel| instance_file(&root, &rel).map(|p| (rel, p)))
         .collect::<CmdResult<_>>()?;
     let root = quests_root(&root)?;
-    let parent = root.parent().ok_or("Quests klasörünün üst klasörü yok")?;
+    let parent = root.parent().ok_or("The quests folder has no parent folder")?;
     let backups = parent.join("editor-backups");
     let name = format!("quests-{}", chrono::Local::now().format("%Y%m%d-%H%M%S"));
     let target = backups.join(&name);

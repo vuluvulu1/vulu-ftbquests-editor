@@ -16,6 +16,7 @@ import { ItemPicker } from "./simple/ItemPicker";
 import { Modal } from "./simple/Modal";
 import type { EditorMode } from "./simple/mode";
 import { QuestView } from "./simple/QuestView";
+import { t } from "../i18n";
 
 interface Props {
   book: QuestBook;
@@ -61,7 +62,7 @@ export function Workspace(props: Props) {
   const createQuest = (x: number, y: number, type: string, itemId?: string) => {
     if (!chapter) return;
     const quest = book.edit(
-      "görev ekle",
+      "add quest",
       () => {
         const q = book.addQuest(chapter, x, y);
         const task = book.addTask(q, type);
@@ -91,18 +92,18 @@ export function Workspace(props: Props) {
     paneMenu(e: MouseEvent, x: number, y: number) {
       if (!chapter) return;
       const items: MenuItem[] = [
-        { kind: "header", label: "Yeni görev" },
-        ...TASK_TYPES.map((t) => ({
-          label: t.label,
-          icon: t.type === "item" ? "minecraft:chest" : taskTypeIcon(t.type),
+        { kind: "header", label: t("New quest") },
+        ...TASK_TYPES.map((spec) => ({
+          label: t(spec.label),
+          icon: spec.type === "item" ? "minecraft:chest" : taskTypeIcon(spec.type),
           onClick: () => {
-            if (taskSpec(t.type)?.hasItem) setPicker(() => (id: string) => run(() => createQuest(x, y, t.type, id)));
-            else run(() => createQuest(x, y, t.type));
+            if (taskSpec(spec.type)?.hasItem) setPicker(() => (id: string) => run(() => createQuest(x, y, spec.type, id)));
+            else run(() => createQuest(x, y, spec.type));
           },
         })),
         { kind: "separator" },
         {
-          label: "Resim ekle (bilgisayardan)",
+          label: t("Add image (from computer)"),
           icon: "minecraft:painting",
           disabled: !assets?.index.hasWritableSource || !book.canAddTextures,
           onClick: () => {
@@ -111,7 +112,7 @@ export function Workspace(props: Props) {
           },
         },
         {
-          label: "Resim ekle (paketteki doku)",
+          label: t("Add image (texture from the pack)"),
           icon: "minecraft:item_frame",
           onClick: () => {
             book.addImage(chapter, "ftbquests:textures/item/book.png", x, y, 2, 2);
@@ -121,7 +122,7 @@ export function Workspace(props: Props) {
           },
         },
         { kind: "separator" },
-        { label: "Bölüm ayarları", icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => (simple ? setChapterDialog(true) : select(null)) },
+        { label: t("Chapter settings"), icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => (simple ? setChapterDialog(true) : select(null)) },
       ];
       menu(e.clientX, e.clientY, items);
     },
@@ -133,15 +134,15 @@ export function Workspace(props: Props) {
         const img = book.images(chapter)[index];
         if (!img) return;
         menu(e.clientX, e.clientY, [
-          { label: "Düzenle", icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => actions.openImage(index) },
-          { label: "Sil", danger: true, onClick: () => book.deleteImage(chapter, img) },
+          { label: t("Edit"), icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => actions.openImage(index) },
+          { label: t("Delete"), danger: true, onClick: () => book.deleteImage(chapter, img) },
         ]);
         return;
       }
       if (nodeId.startsWith("link:")) {
         const link = book.questLinks(chapter).find((l) => getString(l, "id") === nodeId.slice(5));
         const target = link && getString(link, "linked_quest");
-        menu(e.clientX, e.clientY, [{ label: "Bağlı görevi aç", disabled: !target || !book.quest(target), onClick: () => target && setOpenQuest(target) }]);
+        menu(e.clientX, e.clientY, [{ label: t("Open linked quest"), disabled: !target || !book.quest(target), onClick: () => target && setOpenQuest(target) }]);
         return;
       }
       const target = book.quest(nodeId);
@@ -149,8 +150,8 @@ export function Workspace(props: Props) {
       const others = selection.filter((s) => s !== nodeId && book.quest(s));
       const deps = book.dependencies(target.quest);
       const items: MenuItem[] = [
-        { label: "Aç", icon: "texture:ftbquests:textures/item/book.png", onClick: () => (simple ? setOpenQuest(nodeId) : setQuestId(nodeId)) },
-        { label: "Ayarlar", icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => (simple ? setSettingsQuest(nodeId) : setQuestId(nodeId)) },
+        { label: t("Open"), icon: "texture:ftbquests:textures/item/book.png", onClick: () => (simple ? setOpenQuest(nodeId) : setQuestId(nodeId)) },
+        { label: t("Settings"), icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => (simple ? setSettingsQuest(nodeId) : setQuestId(nodeId)) },
       ];
       if (others.length > 0) {
         items.push(
@@ -158,35 +159,35 @@ export function Workspace(props: Props) {
           {
             label:
               others.length === 1
-                ? `"${questName(others[0]!)}" bunun gereksinimi olsun`
-                : `Seçili ${others.length} görev bunun gereksinimi olsun`,
+                ? t("Make \"{name}\" a requirement of this quest", { name: questName(others[0]!) })
+                : t("Make the {count} selected quests requirements of this quest", { count: others.length }),
             icon: "texture:ftbquests:textures/gui/dependency.png",
-            onClick: () => run(() => book.edit("bağımlılık ekle", () => others.forEach((o) => book.addDependency(target.quest, o)), target.quest)),
+            onClick: () => run(() => book.edit("add dependency", () => others.forEach((o) => book.addDependency(target.quest, o)), target.quest)),
           },
         );
         if (others.some((o) => deps.includes(o))) {
           items.push({
-            label: "Seçili görevleri gereksinimlerden çıkar",
-            onClick: () => book.edit("bağımlılık kaldır", () => others.forEach((o) => book.removeDependency(target.quest, o)), target.quest),
+            label: t("Remove the selected quests from its requirements"),
+            onClick: () => book.edit("remove dependency", () => others.forEach((o) => book.removeDependency(target.quest, o)), target.quest),
           });
         }
       } else {
-        items.push({ kind: "header", label: "Gereksinim eklemek için önce Ctrl+tık ile görevleri seçin" });
+        items.push({ kind: "header", label: t("To add requirements, first select quests with Ctrl+click") });
       }
       if (deps.length > 0) {
         items.push({
-          label: `Gereksinimlerini temizle (${deps.length})`,
-          onClick: () => book.edit("bağımlılıkları temizle", () => deps.forEach((d) => book.removeDependency(target.quest, d)), target.quest),
+          label: t("Clear its requirements ({count})", { count: deps.length }),
+          onClick: () => book.edit("clear dependencies", () => deps.forEach((d) => book.removeDependency(target.quest, d)), target.quest),
         });
       }
       items.push(
         { kind: "separator" },
-        { label: "Kimliği kopyala", onClick: () => void navigator.clipboard?.writeText(nodeId) },
+        { label: t("Copy ID"), onClick: () => void navigator.clipboard?.writeText(nodeId) },
         {
-          label: "Sil",
+          label: t("Delete"),
           danger: true,
           onClick: () => {
-            if (window.confirm("Bu görev silinsin mi? (Geri alınabilir)")) {
+            if (window.confirm(t("Delete this quest? (You can undo this)"))) {
               book.deleteQuest(nodeId);
               setOpenQuest(null);
             }
@@ -228,7 +229,7 @@ export function Workspace(props: Props) {
           />
         </ReactFlowProvider>
       ) : (
-        <div className="map panel-empty">Bölüm seçin veya yeni bir bölüm ekleyin.</div>
+        <div className="map panel-empty">{t("Select a chapter or add a new one.")}</div>
       )}
 
       {!simple && (
@@ -254,7 +255,7 @@ export function Workspace(props: Props) {
         />
       )}
       {simple && settingsQuest && book.quest(settingsQuest) && (
-        <Modal title="Görev ayarları" onClose={() => setSettingsQuest(null)} width={520} className="settings-modal">
+        <Modal title={t("Quest settings")} onClose={() => setSettingsQuest(null)} width={520} className="settings-modal">
           <QuestPanel
             book={book}
             version={version}
@@ -269,12 +270,12 @@ export function Workspace(props: Props) {
         </Modal>
       )}
       {simple && chapter && dialogImage && (
-        <Modal title="Resim" onClose={() => setImageDialog(null)} width={480} className="settings-modal">
+        <Modal title={t("Image")} onClose={() => setImageDialog(null)} width={480} className="settings-modal">
           <ImagePanel key={imageDialog} book={book} version={version} chapter={chapter} image={dialogImage} onDeleted={() => setImageDialog(null)} onError={onError} />
         </Modal>
       )}
       {simple && chapter && chapterDialog && (
-        <Modal title="Bölüm ayarları" onClose={() => setChapterDialog(false)} width={480} className="settings-modal">
+        <Modal title={t("Chapter settings")} onClose={() => setChapterDialog(false)} width={480} className="settings-modal">
           <ChapterPanel
             book={book}
             version={version}

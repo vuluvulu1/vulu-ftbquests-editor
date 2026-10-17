@@ -1,6 +1,7 @@
 import { folderArchive, zipArchive, type AssetArchive } from "../core/assets/sources";
 import { blobFile } from "../core/assets/zip";
 import { isEditableInstanceFile, isEditableInstanceTexture, type AssetBundle, type QuestFileSystem } from "../core/fs";
+import { t } from "../i18n";
 
 // File System Access API (Chrome / Edge). Lets the editor run as a plain web page.
 
@@ -81,7 +82,7 @@ export async function openBrowserFolder(): Promise<QuestFileSystem | undefined> 
   }
   const resolved = await resolveRoot(picked);
   if (!resolved) {
-    throw new Error("Bu klasörde FTB Quests bulunamadı. Mod paketinin instance klasörünü seçin (içinde mods ve config klasörleri olan).");
+    throw new Error(t("No FTB Quests found in this folder. Choose the modpack's instance folder (the one with mods and config in it)."));
   }
   const { root, parent, instance, path } = resolved;
 
@@ -123,11 +124,11 @@ export async function openBrowserFolder(): Promise<QuestFileSystem | undefined> 
     assets: () => instanceAssets(instance),
     readInstanceFile: (p) => readInstance(instance, p),
     async writeInstanceFile(p, content) {
-      if (!isEditableInstanceFile(p)) throw new Error(`Bu dosya düzenlenemez: ${p}`);
+      if (!isEditableInstanceFile(p)) throw new Error(t("This file can't be edited: {path}", { path: p }));
       await writeFile(instance, p, content);
     },
     async writeInstanceBinary(p, content) {
-      if (!isEditableInstanceTexture(p)) throw new Error(`Bu dosya yazılamaz: ${p}`);
+      if (!isEditableInstanceTexture(p)) throw new Error(t("Not writable: {path}", { path: p }));
       await writeFile(instance, p, content);
     },
   };

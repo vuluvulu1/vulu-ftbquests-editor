@@ -28,47 +28,47 @@ export interface TypeSpec {
 export const TASK_TYPES: TypeSpec[] = [
   {
     type: "item",
-    label: "Eşya",
+    label: "Item",
     hasItem: true,
     fields: [
-      { key: "item", label: "Eşya", kind: "item" },
-      { key: "count", label: "Adet", kind: "long" },
-      { key: "consume_items", label: "Eşyaları tüket", kind: "bool" },
+      { key: "item", label: "Item", kind: "item" },
+      { key: "count", label: "Count", kind: "long" },
+      { key: "consume_items", label: "Consume items", kind: "bool" },
     ],
     create: () => compound(),
   },
-  { type: "checkmark", label: "Onay kutusu", fields: [], create: () => compound() },
+  { type: "checkmark", label: "Checkmark", fields: [], create: () => compound() },
   {
     type: "kill",
-    label: "Yaratık öldür",
+    label: "Kill",
     fields: [
-      { key: "entity", label: "Varlık", kind: "string" },
-      { key: "value", label: "Adet", kind: "long" },
+      { key: "entity", label: "Entity", kind: "string" },
+      { key: "value", label: "Count", kind: "long" },
     ],
     create: () => compound({ entity: str("minecraft:zombie"), value: long(1) }),
   },
   {
     type: "xp",
-    label: "Tecrübe",
+    label: "XP",
     fields: [
-      { key: "value", label: "Miktar", kind: "long" },
-      { key: "points", label: "Seviye değil puan", kind: "bool" },
+      { key: "value", label: "Amount", kind: "long" },
+      { key: "points", label: "Points instead of levels", kind: "bool" },
     ],
     create: () => compound({ value: long(10) }),
   },
   {
     type: "advancement",
-    label: "Başarım",
+    label: "Advancement",
     fields: [
-      { key: "advancement", label: "Başarım", kind: "string" },
-      { key: "criterion", label: "Kriter", kind: "string" },
+      { key: "advancement", label: "Advancement", kind: "string" },
+      { key: "criterion", label: "Criterion", kind: "string" },
     ],
     create: () => compound({ advancement: str("minecraft:story/root"), criterion: str("") }),
   },
   {
     type: "dimension",
-    label: "Boyut",
-    fields: [{ key: "dimension", label: "Boyut", kind: "string" }],
+    label: "Dimension",
+    fields: [{ key: "dimension", label: "Dimension", kind: "string" }],
     create: () => compound({ dimension: str("minecraft:the_nether") }),
   },
 ];
@@ -76,52 +76,52 @@ export const TASK_TYPES: TypeSpec[] = [
 export const REWARD_TYPES: TypeSpec[] = [
   {
     type: "item",
-    label: "Eşya",
+    label: "Item",
     hasItem: true,
     fields: [
-      { key: "item", label: "Eşya", kind: "item" },
-      { key: "count", label: "Adet", kind: "int" },
+      { key: "item", label: "Item", kind: "item" },
+      { key: "count", label: "Count", kind: "int" },
     ],
     create: () => compound(),
   },
   {
     type: "xp",
-    label: "Tecrübe puanı",
-    fields: [{ key: "xp", label: "Puan", kind: "int" }],
+    label: "XP points",
+    fields: [{ key: "xp", label: "Points", kind: "int" }],
     create: () => compound({ xp: int(100) }),
   },
   {
     type: "xp_levels",
-    label: "Tecrübe seviyesi",
-    fields: [{ key: "xp_levels", label: "Seviye", kind: "int" }],
+    label: "XP levels",
+    fields: [{ key: "xp_levels", label: "Levels", kind: "int" }],
     create: () => compound({ xp_levels: int(5) }),
   },
   ...(
     [
-      ["loot", "Ganimet sandığı"],
-      ["random", "Tablodan rastgele"],
-      ["choice", "Tablodan seçmeli"],
+      ["loot", "Loot crate"],
+      ["random", "Random from table"],
+      ["choice", "Choice from table"],
     ] as const
   ).map(
     ([type, label]): TypeSpec => ({
       type,
       label,
       fields: [
-        { key: "table_id", label: "Ödül tablosu", kind: "table" },
-        { key: "exclude_from_claim_all", label: "\"Hepsini al\"a dahil etme", kind: "bool" },
+        { key: "table_id", label: "Reward table", kind: "table" },
+        { key: "exclude_from_claim_all", label: "Exclude from \"Claim all\"", kind: "bool" },
       ],
       create: () => compound(),
     }),
   ),
   {
     type: "command",
-    label: "Komut",
+    label: "Command",
     fields: [
-      { key: "command", label: "Komut", kind: "string" },
-      { key: "elevate_perms", label: "Yetkili çalıştır", kind: "bool" },
-      { key: "silent", label: "Sessiz", kind: "bool" },
+      { key: "command", label: "Command", kind: "string" },
+      { key: "elevate_perms", label: "Run with elevated permissions", kind: "bool" },
+      { key: "silent", label: "Silent", kind: "bool" },
     ],
-    create: () => compound({ command: str("/say Tebrikler!"), elevate_perms: bool(false) }),
+    create: () => compound({ command: str("/say Well done!"), elevate_perms: bool(false) }),
   },
 ];
 

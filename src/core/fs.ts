@@ -1,4 +1,5 @@
 import type { AssetArchive } from "./assets/sources";
+import { t } from "../i18n";
 
 /**
  * Access to a `config/ftbquests/quests` folder. Paths are relative to that folder
@@ -51,7 +52,7 @@ export class MemoryFileSystem implements QuestFileSystem {
   readonly binaries = new Map<string, Uint8Array>();
 
   async writeInstanceBinary(path: string, content: Uint8Array) {
-    if (!isEditableInstanceTexture(path)) throw new Error(`Yazılamaz: ${path}`);
+    if (!isEditableInstanceTexture(path)) throw new Error(t("Not writable: {path}", { path }));
     this.binaries.set(path, content);
   }
 
@@ -72,7 +73,7 @@ export class MemoryFileSystem implements QuestFileSystem {
   }
 
   async writeInstanceFile(path: string, content: string) {
-    if (!isEditableInstanceFile(path)) throw new Error(`Yazılamaz: ${path}`);
+    if (!isEditableInstanceFile(path)) throw new Error(t("Not writable: {path}", { path }));
     this.instanceFiles.set(path, content);
   }
 

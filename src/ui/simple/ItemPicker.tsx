@@ -1,6 +1,8 @@
 import { useContext, useEffect, useMemo, useState } from "react";
+import { fold } from "../../core/text";
 import { AssetsContext, ItemIcon } from "../ItemIcon";
 import { Modal } from "./Modal";
+import { t } from "../../i18n";
 
 const MAX_RESULTS = 120;
 
@@ -15,7 +17,7 @@ interface Props {
   onClear?(): void;
 }
 
-export function ItemPicker({ title = "Eşya seç", initial = "", onPick, onClose, clearLabel, onClear }: Props) {
+export function ItemPicker({ title, initial = "", onPick, onClose, clearLabel, onClear }: Props) {
   const assets = useContext(AssetsContext);
   const [items, setItems] = useState<{ id: string; name: string }[] | null>(null);
   const [query, setQuery] = useState(initial);
@@ -29,7 +31,7 @@ export function ItemPicker({ title = "Eşya seç", initial = "", onPick, onClose
     };
   }, [assets]);
 
-  const needle = query.trim().toLocaleLowerCase("tr");
+  const needle = fold(query.trim());
   const results = useMemo(() => {
     if (!items) return [];
     // JEI-style: "@mod" filters by the mod's namespace, other words match name or id.
@@ -40,14 +42,14 @@ export function ItemPicker({ title = "Eşya seç", initial = "", onPick, onClose
     const match = (it: { id: string; name: string }) => {
       const ns = it.id.slice(0, it.id.indexOf(":"));
       if (!mods.every((m) => ns.includes(m))) return false;
-      const hay = `${it.name.toLocaleLowerCase("tr")} ${it.id}`;
+      const hay = `${fold(it.name)} ${it.id}`;
       return words.every((w) => hay.includes(w));
     };
     // Best first: exact name/id, then names starting with the query, then vanilla, then the rest.
     const text = words.join(" ");
     const score = (it: { id: string; name: string }) => {
       if (!text) return it.id.startsWith("minecraft:") ? 2 : 3;
-      const name = it.name.toLocaleLowerCase("tr");
+      const name = fold(it.name);
       const path = it.id.slice(it.id.indexOf(":") + 1);
       if (name === text || path === text.replace(/ /g, "_") || it.id === text) return 0;
       if (name.startsWith(text) || path.startsWith(text)) return 1;
@@ -65,10 +67,10 @@ export function ItemPicker({ title = "Eşya seç", initial = "", onPick, onClose
   const typedId = /^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(query.trim()) ? query.trim() : undefined;
 
   return (
-    <Modal title={title} onClose={onClose} width={640}>
-      <input autoFocus value={query} placeholder="Ara: isim veya id · @mod ile moda göre (ör. @sophisticated backpack)" onChange={(e) => setQuery(e.target.value)} />
-      {!assets && <p className="hint">Eşya listesi için mod dosyalarının yüklenmesi gerekiyor. ID'yi doğrudan yazabilirsin.</p>}
-      {assets && !items && <p className="hint">Eşyalar listeleniyor…</p>}
+    <Modal title={title ?? t("Choose item")} onClose={onClose} width={640}>
+      <input autoFocus value={query} placeholder={t("Search: name or ID · @mod to filter by mod (e.g. @sophisticated backpack)")} onChange={(e) => setQuery(e.target.value)} />
+      {!assets && <p className="hint">{t("The item list needs the mod files to be loaded. You can type the ID directly.")}</p>}
+      {assets && !items && <p className="hint">{t("Listing items…")}</p>}
       <div className="item-grid">
         {results.map((it) => (
           <button key={it.id} className="item-cell" title={`${it.name}\n${it.id}`} onClick={() => onPick(it.id)}>
@@ -77,15 +79,15 @@ export function ItemPicker({ title = "Eşya seç", initial = "", onPick, onClose
           </button>
         ))}
       </div>
-      {items && results.length === MAX_RESULTS && <p className="hint">İlk {MAX_RESULTS} sonuç gösteriliyor; aramayı daraltın.</p>}
+      {items && results.length === MAX_RESULTS && <p className="hint">{t("Showing the first {count} results; narrow your search.", { count: MAX_RESULTS })}</p>}
       {(typedId || onClear) && (
         <div className="row end">
           {onClear && (
             <button className="secondary" onClick={onClear}>
-              {clearLabel ?? "Temizle"}
+              {clearLabel ?? t("Clear")}
             </button>
           )}
-          {typedId && <button onClick={() => onPick(typedId)}>"{typedId}" kullan</button>}
+          {typedId && <button onClick={() => onPick(typedId)}>{t("Use \"{id}\"", { id: typedId })}</button>}
         </div>
       )}
     </Modal>

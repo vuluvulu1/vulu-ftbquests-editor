@@ -3,22 +3,22 @@
 // FTB Quests renders every description line on its own, so styles never carry over.
 
 export const MC_COLORS: { code: string; hex: string; name: string }[] = [
-  { code: "0", hex: "#000000", name: "Siyah" },
-  { code: "1", hex: "#0000aa", name: "Koyu mavi" },
-  { code: "2", hex: "#00aa00", name: "Koyu yeşil" },
-  { code: "3", hex: "#00aaaa", name: "Koyu turkuaz" },
-  { code: "4", hex: "#aa0000", name: "Koyu kırmızı" },
-  { code: "5", hex: "#aa00aa", name: "Mor" },
-  { code: "6", hex: "#ffaa00", name: "Altın" },
-  { code: "7", hex: "#aaaaaa", name: "Gri" },
-  { code: "8", hex: "#555555", name: "Koyu gri" },
-  { code: "9", hex: "#5555ff", name: "Mavi" },
-  { code: "a", hex: "#55ff55", name: "Yeşil" },
-  { code: "b", hex: "#55ffff", name: "Turkuaz" },
-  { code: "c", hex: "#ff5555", name: "Kırmızı" },
-  { code: "d", hex: "#ff55ff", name: "Pembe" },
-  { code: "e", hex: "#ffff55", name: "Sarı" },
-  { code: "f", hex: "#ffffff", name: "Beyaz" },
+  { code: "0", hex: "#000000", name: "Black" },
+  { code: "1", hex: "#0000aa", name: "Dark Blue" },
+  { code: "2", hex: "#00aa00", name: "Dark Green" },
+  { code: "3", hex: "#00aaaa", name: "Dark Aqua" },
+  { code: "4", hex: "#aa0000", name: "Dark Red" },
+  { code: "5", hex: "#aa00aa", name: "Dark Purple" },
+  { code: "6", hex: "#ffaa00", name: "Gold" },
+  { code: "7", hex: "#aaaaaa", name: "Gray" },
+  { code: "8", hex: "#555555", name: "Dark Gray" },
+  { code: "9", hex: "#5555ff", name: "Blue" },
+  { code: "a", hex: "#55ff55", name: "Green" },
+  { code: "b", hex: "#55ffff", name: "Aqua" },
+  { code: "c", hex: "#ff5555", name: "Red" },
+  { code: "d", hex: "#ff55ff", name: "Light Purple" },
+  { code: "e", hex: "#ffff55", name: "Yellow" },
+  { code: "f", hex: "#ffffff", name: "White" },
 ];
 
 export const FLAGS = ["bold", "italic", "underline", "strike", "obfuscated"] as const;

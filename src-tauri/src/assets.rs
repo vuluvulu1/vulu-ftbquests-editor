@@ -162,7 +162,7 @@ fn check_allowed(allowed: &AllowedSources, id: &str) -> Result<PathBuf, String> 
     if allowed.0.lock().map_err(|e| e.to_string())?.contains(&path) {
         Ok(path)
     } else {
-        Err(format!("İzin verilmeyen kaynak: {id}"))
+        Err(format!("Source not allowed: {id}"))
     }
 }
 
@@ -182,7 +182,7 @@ pub fn read_range(id: String, offset: u64, length: u64, allowed: tauri::State<Al
 pub fn read_asset_file(id: String, path: String, allowed: tauri::State<AllowedSources>) -> Result<Response, String> {
     let root = check_allowed(&allowed, &id)?;
     if Path::new(&path).components().any(|c| !matches!(c, Component::Normal(_))) {
-        return Err(format!("Geçersiz yol: {path}"));
+        return Err(format!("Invalid path: {path}"));
     }
     fs::read(root.join(path)).map(Response::new).map_err(|e| e.to_string())
 }

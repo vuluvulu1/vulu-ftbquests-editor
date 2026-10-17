@@ -1,5 +1,6 @@
 import type { AssetIndex } from "./assets/assetIndex";
 import type { QuestBook } from "./book";
+import { t } from "../i18n";
 
 // Adds a PNG from the user's computer to the pack as a KubeJS texture, so it can be used
 // as a chapter image: kubejs/assets/<ns>/textures/quest_images/<name>.png
@@ -17,7 +18,7 @@ const TR: Record<string, string> = { ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s"
 
 /** Width and height from the IHDR chunk; throws if the bytes are not a PNG. */
 export function pngSize(bytes: Uint8Array): { width: number; height: number } {
-  if (bytes.length < 24 || PNG_SIGNATURE.some((b, i) => bytes[i] !== b)) throw new Error("Bu dosya bir PNG değil.");
+  if (bytes.length < 24 || PNG_SIGNATURE.some((b, i) => bytes[i] !== b)) throw new Error(t("This file isn't a PNG."));
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   return { width: view.getUint32(16), height: view.getUint32(20) };
 }
@@ -38,7 +39,7 @@ export function resourceName(fileName: string): string {
 export function importPng(book: QuestBook, index: AssetIndex, fileName: string, bytes: Uint8Array): ImportedImage {
   const { width, height } = pngSize(bytes);
   if (!index.hasWritableSource) {
-    throw new Error("Bu pakette KubeJS'in assets klasörü yok; eklenen resim oyunda yüklenmez.");
+    throw new Error(t("This pack has no KubeJS assets folder; an added image wouldn't load in game."));
   }
   const ns = index.writableTextureNamespaces()[0] ?? "kubejs";
   const base = resourceName(fileName);

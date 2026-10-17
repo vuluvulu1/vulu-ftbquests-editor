@@ -18,3 +18,8 @@ export function translateText(text: string, translations: Translations | null): 
     })
     .join("\n");
 }
+
+/** Lowercases for searching so "I", "İ", "ı" and "i" all match (Turkish and English input alike). */
+export function fold(text: string): string {
+  return text.toLowerCase().split(String.fromCharCode(0x307)).join("").replace(/ı/g, "i");
+}

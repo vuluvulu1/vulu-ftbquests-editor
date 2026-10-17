@@ -5,6 +5,7 @@ import { shortItem } from "./hooks";
 import { ItemIcon } from "./ItemIcon";
 import { McText } from "./McText";
 import { useContextMenu } from "./simple/ContextMenu";
+import { t } from "../i18n";
 
 interface Props {
   book: QuestBook;
@@ -33,7 +34,7 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
     });
 
   const add = () => {
-    const chapter = book.addChapter(title.trim() || "Yeni Bölüm");
+    const chapter = book.addChapter(title.trim() || t("New Chapter"));
     setTitle("");
     setAdding(false);
     onSelect(chapter.id);
@@ -49,22 +50,22 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
         onContextMenu={(e) => {
           e.preventDefault();
           menu(e.clientX, e.clientY, [
-            { label: "Aç", onClick: () => onSelect(c.id) },
-            { label: "Düzenle", icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => onEdit(c.id) },
+            { label: t("Open"), onClick: () => onSelect(c.id) },
+            { label: t("Edit"), icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => onEdit(c.id) },
             { kind: "separator" },
-            { label: "Yukarı taşı", icon: "texture:ftblibrary:textures/icons/up.png", disabled: index === 0, onClick: () => book.moveChapter(c, index - 1) },
+            { label: t("Move up"), icon: "texture:ftblibrary:textures/icons/up.png", disabled: index === 0, onClick: () => book.moveChapter(c, index - 1) },
             {
-              label: "Aşağı taşı",
+              label: t("Move down"),
               icon: "texture:ftblibrary:textures/icons/down.png",
               disabled: index === chapters.length - 1,
               onClick: () => book.moveChapter(c, index + 1),
             },
             { kind: "separator" },
             {
-              label: "Sil",
+              label: t("Delete"),
               danger: true,
               onClick: () => {
-                if (window.confirm("Bu bölüm ve tüm görevleri silinsin mi? (Geri alınabilir)")) book.deleteChapter(c);
+                if (window.confirm(t("Delete this chapter and all its quests? (You can undo this)"))) book.deleteChapter(c);
               },
             },
           ]);
@@ -86,8 +87,8 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
   return (
     <nav className="sidebar">
       <div className="sidebar-head">
-        <span>Bölümler</span>
-        <button className="add-green" title="Yeni bölüm" onClick={() => setAdding(true)}>
+        <span>{t("Chapters")}</span>
+        <button className="add-green" title={t("New chapter")} onClick={() => setAdding(true)}>
           +
         </button>
       </div>
@@ -96,14 +97,14 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
           <input
             autoFocus
             value={title}
-            placeholder="Bölüm adı"
+            placeholder={t("Chapter name")}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") add();
               if (e.key === "Escape") setAdding(false);
             }}
           />
-          <button onClick={add}>Ekle</button>
+          <button onClick={add}>{t("Add")}</button>
         </div>
       )}
       {groups.map((g) => {
@@ -120,7 +121,7 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
           </section>
         );
       })}
-      <p className="hint sidebar-hint">Bölüme sağ tıklayarak taşıyabilir, düzenleyebilir veya silebilirsin.</p>
+      <p className="hint sidebar-hint">{t("Right-click a chapter to move, edit or delete it.")}</p>
     </nav>
   );
 }

@@ -397,3 +397,60 @@
   width: auto;
   flex: none;
 }
+
+/* Toolbar groups the tour points at */
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* First-launch tour */
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+.tour.dim {
+  background: rgba(0, 0, 0, 0.55);
+}
+.tour-spot {
+  position: fixed;
+  border: 2px solid var(--ftb-hover-text);
+  border-radius: 6px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  transition: left 0.2s, top 0.2s, width 0.2s, height 0.2s;
+}
+.tour-card {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(20, 14, 28, 0.98);
+  border: 1px solid var(--ftb-border);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 16px 48px rgba(0, 0, 0, 0.7);
+  transition: left 0.2s, top 0.2s;
+}
+.tour-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--mc-font);
+  font-size: 16px;
+  color: var(--ftb-hover-text);
+}
+.tour-head strong {
+  flex: 1;
+  font-weight: 600;
+}
+.tour-count {
+  color: var(--dim);
+  font-size: 12px;
+}
+.tour-card p {
+  margin: 0;
+  line-height: 1.45;
+}

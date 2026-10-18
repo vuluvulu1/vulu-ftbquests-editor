@@ -358,4 +358,38 @@ export const tr: Record<string, string> = {
   Clear: "Temizle",
   'Use "{id}"': '"{id}" kullan',
   "Search quests: title, chapter or ID": "Görev ara: başlık, bölüm veya kimlik",
+
+  // Tour
+  "Show the tour": "Tanıtım turunu göster",
+  "Skip tour": "Turu geç",
+  Back: "Geri",
+  Next: "İleri",
+  Done: "Bitti",
+  "Welcome!": "Hoş geldin!",
+  "A quick tour of the editor, about a minute. You can skip it and replay it any time with the ? button in the toolbar.":
+    "Editörün kısa bir turu, yaklaşık bir dakika. İstersen geçebilir, sonra üst çubuktaki ? düğmesiyle tekrar açabilirsin.",
+  "Every chapter of the quest book. Click one to open it, use the green + for a new chapter, right-click to move, edit or delete.":
+    "Görev kitabının bütün bölümleri. Açmak için tıkla, yeni bölüm için yeşil +, taşımak, düzenlemek veya silmek için sağ tıkla.",
+  "Quest map": "Görev haritası",
+  "The chapter as it looks in game. Drag the background to pan, scroll to zoom, drag quests to move them.":
+    "Bölüm, oyunda göründüğü gibi. Kaydırmak için arka planı sürükle, yakınlaştırmak için tekerleği kullan, görevleri sürükleyerek taşı.",
+  "Adding quests": "Görev ekleme",
+  "Right-click an empty spot to add a quest (choose its task type) or an image. Right-click a quest for its menu.":
+    "Görev (şart türünü seçerek) veya resim eklemek için boş bir yere sağ tıkla. Bir görevin menüsü için göreve sağ tıkla.",
+  "Double-click an empty spot to add a quest. Drag from the dot on a quest's right side to another quest to make a dependency.":
+    "Görev eklemek için boş bir yere çift tıkla. Bağımlılık için bir görevin sağındaki noktadan diğer göreve sürükle.",
+  "Quest window": "Görev penceresi",
+  "Click a quest to open its window: title, tasks, rewards, requirements and description, just like in game. The ⚙ button has the rest of its settings.":
+    "Göreve tıklayınca penceresi açılır: başlık, şartlar, ödüller, gereksinimler ve açıklama, tıpkı oyundaki gibi. Diğer ayarları ⚙ düğmesinde.",
+  "Settings panel": "Ayar paneli",
+  "The settings of the selected quest, image or chapter. With nothing selected it shows the chapter.":
+    "Seçili görevin, resmin veya bölümün ayarları. Hiçbir şey seçili değilse bölümü gösterir.",
+  "To make quests depend on each other: Ctrl+click the quests that must be done first, then right-click the quest they unlock.":
+    "Görevleri birbirine bağlamak için: önce yapılması gereken görevleri Ctrl+tık ile seç, sonra açacakları göreve sağ tıkla.",
+  "Undo and save": "Geri alma ve kaydetme",
+  "Everything can be undone (Ctrl+Z). Nothing is written to your pack until you save (Ctrl+S), and a backup is made before every save.":
+    "Her şey geri alınabilir (Ctrl+Z). Kaydedene kadar (Ctrl+S) pakete hiçbir şey yazılmaz ve her kaydetmeden önce yedek alınır.",
+  "Mode and language": "Mod ve dil",
+  "Switch between Simple and Advanced editing, change the language, or replay this tour.":
+    "Basit ve gelişmiş düzenleme arasında geçiş yap, dili değiştir veya bu turu tekrar izle.",
 };

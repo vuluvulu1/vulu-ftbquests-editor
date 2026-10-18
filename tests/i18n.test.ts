@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { MC_COLORS } from "../src/core/mcFormat";
 import { REWARD_TYPES, TASK_TYPES } from "../src/core/registry";
 import { initialSteps } from "../src/ui/LoadingOverlay";
+import { tourSteps } from "../src/ui/Tutorial";
 import { tr } from "../src/locales/tr";
 
 function sources(dir: string): string[] {
@@ -34,6 +35,7 @@ function uiStrings(): Set<string> {
   }
   for (const c of MC_COLORS) keys.add(c.name);
   for (const s of initialSteps(true)) keys.add(s.label);
+  for (const s of [...tourSteps("simple"), ...tourSteps("advanced")]) keys.add(s.title).add(s.text);
   return keys;
 }
 

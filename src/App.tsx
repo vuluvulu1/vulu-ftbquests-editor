@@ -16,6 +16,7 @@ import { savedMode, saveMode, type EditorMode } from "./ui/simple/mode";
 import { ModeChooser } from "./ui/simple/ModeChooser";
 import { Workspace } from "./ui/Workspace";
 import { LanguageSelect } from "./ui/LanguageSelect";
+import { tourDone, Tutorial } from "./ui/Tutorial";
 
 interface Toast {
   kind: "info" | "error";
@@ -31,6 +32,7 @@ export function App() {
   /** null until chosen: the chooser is shown on first launch. */
   const [mode, setMode] = useState<EditorMode | null>(() => savedMode());
   const [choosingMode, setChoosingMode] = useState(false);
+  const [touring, setTouring] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [showIssues, setShowIssues] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -217,6 +219,11 @@ export function App() {
     setImageIndex(null);
   }, []);
 
+  // The tour starts by itself the first time a pack has finished opening.
+  useEffect(() => {
+    if (book && !overlay && !tourDone()) setTouring(true);
+  }, [book, overlay]);
+
   const canOpen = isTauri() || browserFsSupported();
   const activeStep = steps?.find((s) => s.state === "active");
 
@@ -268,9 +275,7 @@ export function App() {
               )
             )}
             <span className="spacer" />
-            <button className="secondary" onClick={() => setChoosingMode(true)} title={t("Simple / advanced editing")}>
-              {t("Mode")}: {mode === "advanced" ? t("Advanced") : t("Simple")}
-            </button>
+            <span className="toolbar-group toolbar-save">
             <button className="secondary" disabled={!book.canUndo} onClick={() => book.undo()} title={book.undoLabel ? t("Undo: {action}", { action: t(book.undoLabel) }) : ""}>
               ↶ {t("Undo")}
             </button>
@@ -280,10 +285,23 @@ export function App() {
             <button onClick={save} disabled={!book.dirty || busy} className={book.dirty ? "primary" : undefined}>
               {book.dirty ? t("Save ({count})", { count: book.pendingChanges().written.length + book.pendingChanges().removed.length }) : t("Saved")}
             </button>
+            </span>
           </>
         )}
         {!book && <span className="spacer" />}
-        <LanguageSelect />
+        <span className="toolbar-group toolbar-prefs">
+          {book && (
+            <button className="secondary" onClick={() => setChoosingMode(true)} title={t("Simple / advanced editing")}>
+              {t("Mode")}: {mode === "advanced" ? t("Advanced") : t("Simple")}
+            </button>
+          )}
+          <LanguageSelect />
+          {book && (
+            <button className="secondary" onClick={() => setTouring(true)} title={t("Show the tour")}>
+              ?
+            </button>
+          )}
+        </span>
       </header>
 
       {showIssues && book && (
@@ -333,6 +351,8 @@ export function App() {
           }}
         />
       )}
+
+      {touring && book && mode && !overlay && !choosingMode && <Tutorial mode={mode} onClose={() => setTouring(false)} />}
 
       {overlay && steps && (
         <LoadingOverlay

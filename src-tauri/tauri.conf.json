@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Vulu FTBQuests Editor",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "identifier": "io.github.vuluvulu1.ftbquests-editor",
   "build": {
     "beforeDevCommand": "npm run dev",

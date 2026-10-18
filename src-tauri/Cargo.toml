@@ -1,6 +1,6 @@
 [package]
 name = "vulu-ftbquests-editor"
-version = "0.2.0"
+version = "0.3.0"
 description = "Edit FTB Quests quest books outside of Minecraft"
 license = "AGPL-3.0-or-later"
 edition = "2021"

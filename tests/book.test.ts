@@ -383,3 +383,46 @@ it("keeps the raw editor's object identity", async () => {
   expect(questOf(book, "4D5E6F708192A3B4")).toBe(q);
   expect(getNumber(q, "x")).toBe(5);
 });
+
+describe("chapter order", () => {
+  // Like MC Eternal 2: order_index counts within each group, so the numbers overlap.
+  const chapterFile = (name: string, id: string, group: string, order: number) => `{
+	filename: "${name}"
+	group: "${group}"
+	id: "${id}"
+	order_index: ${order}
+	quests: [ ]
+	title: "${name}"
+}
+`;
+  const groupedFs = () =>
+    new MemoryFileSystem({
+      "data.snbt": DATA,
+      "chapter_groups.snbt": GROUPS,
+      "chapters/a1.snbt": chapterFile("a1", "A000000000000001", "", 0),
+      "chapters/a2.snbt": chapterFile("a2", "A000000000000002", "", 1),
+      "chapters/b1.snbt": chapterFile("b1", "B000000000000001", "7A7A7A7A7A7A7A7A", 0),
+      "chapters/b2.snbt": chapterFile("b2", "B000000000000002", "7A7A7A7A7A7A7A7A", 1),
+      "chapters/b3.snbt": chapterFile("b3", "B000000000000003", "7A7A7A7A7A7A7A7A", 2),
+    });
+  const names = (book: QuestBook, group: string) => book.groupChapters(group).map((c) => getString(c.root, "filename"));
+
+  it("moves a chapter within its group", async () => {
+    const book = await QuestBook.load(groupedFs());
+    const b3 = book.groupChapters("7A7A7A7A7A7A7A7A")[2]!;
+    book.moveChapter(b3, -1);
+    expect(names(book, "7A7A7A7A7A7A7A7A")).toEqual(["b1", "b3", "b2"]);
+    expect(names(book, "")).toEqual(["a1", "a2"]);
+    // only the two swapped chapters are rewritten
+    expect(book.pendingChanges().written.sort()).toEqual(["chapters/b2.snbt", "chapters/b3.snbt"]);
+    book.moveChapter(book.groupChapters("7A7A7A7A7A7A7A7A")[1]!, -1);
+    expect(names(book, "7A7A7A7A7A7A7A7A")).toEqual(["b3", "b1", "b2"]);
+  });
+
+  it("stays put at the ends of its group", async () => {
+    const book = await QuestBook.load(groupedFs());
+    book.moveChapter(book.groupChapters("")[0]!, -1);
+    book.moveChapter(book.groupChapters("7A7A7A7A7A7A7A7A")[2]!, 1);
+    expect(book.dirty).toBe(false);
+  });
+});

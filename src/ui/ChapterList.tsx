@@ -21,17 +21,10 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
 
-  const chapters = book.chapters;
   const groups = [
     { id: "", title: "" },
     ...book.chapterGroups.map((g) => ({ id: getString(g, "id") ?? "", title: book.getText("chapter_group", g, "title") })),
   ];
-  const groupIds = new Set(groups.map((g) => g.id));
-  const chaptersOf = (groupId: string) =>
-    chapters.filter((c) => {
-      const g = getString(c.root, "group") ?? "";
-      return g === groupId || (groupId === "" && !groupIds.has(g));
-    });
 
   const add = () => {
     const chapter = book.addChapter(title.trim() || t("New Chapter"));
@@ -40,8 +33,8 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
     onSelect(chapter.id);
   };
 
-  const row = (c: Chapter) => {
-    const index = chapters.indexOf(c);
+  // Up / down move within the chapter's group, the order FTB shows.
+  const row = (c: Chapter, index: number, list: Chapter[]) => {
     const name = book.getText("chapter", c.root, "title") || getString(c.root, "filename") || "";
     return (
       <li
@@ -53,12 +46,12 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
             { label: t("Open"), onClick: () => onSelect(c.id) },
             { label: t("Edit"), icon: "texture:ftbquests:textures/gui/settings.png", onClick: () => onEdit(c.id) },
             { kind: "separator" },
-            { label: t("Move up"), icon: "texture:ftblibrary:textures/icons/up.png", disabled: index === 0, onClick: () => book.moveChapter(c, index - 1) },
+            { label: t("Move up"), icon: "texture:ftblibrary:textures/icons/up.png", disabled: index === 0, onClick: () => book.moveChapter(c, -1) },
             {
               label: t("Move down"),
               icon: "texture:ftblibrary:textures/icons/down.png",
-              disabled: index === chapters.length - 1,
-              onClick: () => book.moveChapter(c, index + 1),
+              disabled: index === list.length - 1,
+              onClick: () => book.moveChapter(c, 1),
             },
             { kind: "separator" },
             {
@@ -108,7 +101,7 @@ export function ChapterList({ book, selected, onSelect, onEdit }: Props) {
         </div>
       )}
       {groups.map((g) => {
-        const list = chaptersOf(g.id);
+        const list = book.groupChapters(g.id);
         if (g.id !== "" && list.length === 0) return null;
         return (
           <section key={g.id}>

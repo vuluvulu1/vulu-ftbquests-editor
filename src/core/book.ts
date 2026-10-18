@@ -771,12 +771,31 @@ export class QuestBook {
     });
   }
 
-  /** Moves a chapter to `newIndex` in the sorted chapter list and renumbers `order_index`. */
-  moveChapter(chapter: Chapter, newIndex: number) {
+  /** The group a chapter is listed under: its `group` if that group exists, otherwise "" (ungrouped). */
+  chapterGroupId(chapter: Chapter): string {
+    const group = getString(chapter.root, "group") ?? "";
+    return this.chapterGroups.some((g) => getString(g, "id") === group) ? group : "";
+  }
+
+  /** Chapters of one group in display order. */
+  groupChapters(groupId: string): Chapter[] {
+    return this.chapters.filter((c) => this.chapterGroupId(c) === groupId);
+  }
+
+  /**
+   * Moves a chapter `delta` places up (-1) or down (+1) within its group. FTB orders chapters
+   * by `order_index` inside each group, so only that group is renumbered (and only changed files).
+   */
+  moveChapter(chapter: Chapter, delta: number) {
+    const siblings = this.groupChapters(this.chapterGroupId(chapter));
+    const from = siblings.findIndex((c) => c.path === chapter.path);
+    const to = Math.max(0, Math.min(from + delta, siblings.length - 1));
+    if (from < 0 || to === from) return;
+    siblings.splice(to, 0, ...siblings.splice(from, 1));
     this.edit("chapter order", () => {
-      const ordered = this.chapters.filter((c) => c.path !== chapter.path);
-      ordered.splice(Math.max(0, Math.min(newIndex, ordered.length)), 0, chapter);
-      ordered.forEach((c, i) => setNumber(c.root, "order_index", i, "int"));
+      siblings.forEach((c, i) => {
+        if (getNumber(c.root, "order_index") !== i) setNumber(c.root, "order_index", i, "int");
+      });
     }, "chapters/");
   }
 

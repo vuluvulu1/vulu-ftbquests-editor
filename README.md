@@ -114,4 +114,5 @@ Licensed under the [GNU Affero General Public License v3.0](LICENSE).
 
 This project is not affiliated with or endorsed by Feed The Beast. No Minecraft, FTB Quests or mod assets
 are included; everything is read from your own modpack. The UI font is
-[Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (SIL Open Font License 1.1).
+[Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (SIL Open Font License 1.1, [text](LICENSE-PixelifySans.txt)).
+All third-party components and their licenses: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
